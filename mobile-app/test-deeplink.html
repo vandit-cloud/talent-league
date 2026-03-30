@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TalentLeague Deep Link Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+        h1 {
+            color: #b794f6;
+        }
+        .button {
+            display: block;
+            background: #6366f1;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+            margin: 15px 0;
+        }
+        .button:hover {
+            background: #5558e3;
+        }
+        .button.secondary {
+            background: #8b5cf6;
+        }
+        .button.success {
+            background: #10b981;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 2px solid #6366f1;
+            border-radius: 8px;
+            background: #2d2d2d;
+            color: #ffffff;
+            font-size: 16px;
+        }
+        .info {
+            background: #2d2d2d;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #6366f1;
+        }
+        .warning {
+            background: #2d2d2d;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #f59e0b;
+            color: #f59e0b;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 TalentLeague Deep Link Tester</h1>
+
+    <div class="info">
+        <strong>📱 Instructions:</strong>
+        <ol>
+            <li>Make sure the TalentLeague app is installed on your device</li>
+            <li>Enter a test token (or use the default one)</li>
+            <li>Click one of the test buttons below</li>
+            <li>The app should open automatically</li>
+        </ol>
+    </div>
+
+    <label for="token"><strong>Test Token:</strong></label>
+    <input
+        type="text"
+        id="token"
+        value="abc123def456789test"
+        placeholder="Enter test token"
+    />
+
+    <h2>Test Links:</h2>
+
+    <a href="#" class="button" onclick="openDeepLink(); return false;">
+        📱 Test Deep Link (talentleague://)
+    </a>
+
+    <a href="#" class="button secondary" onclick="openIntent(); return false;">
+        📲 Test Android Intent
+    </a>
+
+    <a href="#" class="button success" onclick="openWeb(); return false;">
+        🌐 Test Web Fallback
+    </a>
+
+    <div class="warning">
+        <strong>⚠️ Note:</strong> If the deep link doesn't work:
+        <ul>
+            <li>Check that the app is installed</li>
+            <li>Try reinstalling the app</li>
+            <li>Clear default app associations in settings</li>
+            <li>Check the console for errors (F12)</li>
+        </ul>
+    </div>
+
+    <h2>Current Links:</h2>
+    <div class="info" style="word-break: break-all; font-size: 14px;">
+        <p><strong>Deep Link:</strong> <span id="deeplink-display"></span></p>
+        <p><strong>Intent URL:</strong> <span id="intent-display"></span></p>
+        <p><strong>Web URL:</strong> <span id="web-display"></span></p>
+    </div>
+
+    <script>
+        const backendUrl = 'http://192.168.1.16:5173'; // Change this to your backend URL
+
+        function updateDisplayLinks() {
+            const token = document.getElementById('token').value;
+            const deepLink = `talentleague://test/${token}`;
+            const intentUrl = `intent://test/${token}#Intent;scheme=talentleague;package=com.talentleague.app;S.browser_fallback_url=${encodeURIComponent(backendUrl + '/mcq-test/' + token)};end`;
+            const webUrl = `${backendUrl}/mcq-test/${token}`;
+
+            document.getElementById('deeplink-display').textContent = deepLink;
+            document.getElementById('intent-display').textContent = intentUrl;
+            document.getElementById('web-display').textContent = webUrl;
+        }
+
+        function openDeepLink() {
+            const token = document.getElementById('token').value;
+            const deepLink = `talentleague://test/${token}`;
+
+            console.log('Opening deep link:', deepLink);
+            window.location.href = deepLink;
+
+            // Fallback after 2 seconds
+            setTimeout(() => {
+                alert('If the app didn\'t open, it might not be installed or deep linking isn\'t configured properly.');
+            }, 2000);
+        }
+
+        function openIntent() {
+            const token = document.getElementById('token').value;
+            const webUrl = `${backendUrl}/mcq-test/${token}`;
+            const intentUrl = `intent://test/${token}#Intent;scheme=talentleague;package=com.talentleague.app;S.browser_fallback_url=${encodeURIComponent(webUrl)};end`;
+
+            console.log('Opening intent URL:', intentUrl);
+            window.location.href = intentUrl;
+        }
+
+        function openWeb() {
+            const token = document.getElementById('token').value;
+            const webUrl = `${backendUrl}/mcq-test/${token}`;
+
+            console.log('Opening web URL:', webUrl);
+            window.location.href = webUrl;
+        }
+
+        // Update display on page load and token change
+        document.getElementById('token').addEventListener('input', updateDisplayLinks);
+        updateDisplayLinks();
+
+        // Log for debugging
+        console.log('Deep Link Tester loaded');
+        console.log('User Agent:', navigator.userAgent);
+    </script>
+</body>
+</html>

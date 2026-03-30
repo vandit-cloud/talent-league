@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(node:*)",
+      "Bash(lsof:*)",
+      "Bash(npm start:*)",
+      "Bash(netstat -ano)",
+      "Bash(xargs -r taskkill //PID //F)",
+      "Bash(taskkill:*)",
+      "Bash(npm run:*)",
+      "Bash(curl:*)",
+      "Bash(ipconfig)",
+      "Bash(ipconfig:*)",
+      "Bash(npm list:*)",
+      "Bash(rm:*)",
+      "Bash(npx cap:*)",
+      "Bash(./gradlew assembleDebug:*)",
+      "Bash(echo:*)",
+      "Bash(./gradlew installDebug:*)",
+      "Bash(adb devices:*)",
+      "Bash(mv:*)",
+      "Bash(echo Testing with token: $TOKEN:*)",
+      "Bash(pkill:*)",
+      "Bash(git checkout:*)",
+      "Bash(ls:*)",
+      "Bash(gh auth:*)",
+      "Bash(git:*)"
+    ]
+  }
+}

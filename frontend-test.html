@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Frontend Registration Test</title>
+</head>
+<body>
+    <h1>Frontend Registration Test</h1>
+    <form id="signupForm">
+        <div>
+            <label>Name: <input type="text" id="name" value="Frontend Test Recruiter"></label>
+        </div>
+        <div>
+            <label>Email: <input type="email" id="email" value="frontend@test.com"></label>
+        </div>
+        <div>
+            <label>Password: <input type="password" id="password" value="test123"></label>
+        </div>
+        <div>
+            <label>Role: 
+                <select id="role">
+                    <option value="candidate">Candidate</option>
+                    <option value="recruiter" selected>Recruiter</option>
+                </select>
+            </label>
+        </div>
+        <button type="submit">Register</button>
+    </form>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value;
+            
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<p>Registering...</p>';
+            
+            try {
+                console.log('Sending registration request:', { name, email, role });
+                
+                const response = await fetch('http://localhost:5000/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, email, password, role }),
+                });
+
+                console.log('Response status:', response.status);
+                const data = await response.json();
+                console.log('Response data:', data);
+
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <h3 style="color: green;">Registration Successful!</h3>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                        <p>User ID: ${data._id}</p>
+                        <p>Role: ${data.role}</p>
+                        <p>Token: ${data.token.substring(0, 50)}...</p>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <h3 style="color: red;">Registration Failed</h3>
+                        <p>Error: ${data.message}</p>
+                    `;
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                resultDiv.innerHTML = `
+                    <h3 style="color: red;">Network Error</h3>
+                    <p>${error.message}</p>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>

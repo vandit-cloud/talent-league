@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Opening TalentLeague App...</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: #fff;
+            border-radius: 20px;
+            padding: 40px 30px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .icon {
+            font-size: 52px;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+
+        h1 {
+            color: #1f2937;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: #6b7280;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 15px;
+            text-decoration: none;
+            transition: transform 0.2s;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">📱</div>
+        <h1 id="title">Continue to TalentLeague App</h1>
+        <p id="message">Your MCQ test is ready. Tap below to open it in the TalentLeague app.</p>
+
+        <button id="openAppBtn" class="btn" type="button" onclick="openApp()">
+            Continue to App
+        </button>
+
+        <a id="browserBtn" class="btn btn-secondary hidden" href="#">
+            Continue in Browser
+        </a>
+    </div>
+
+    <script>
+        function safeParseUrl(value) {
+            if (!value) {
+                return null;
+            }
+
+            try {
+                return new URL(value);
+            } catch (error) {
+                console.error('Invalid URL:', value, error);
+                return null;
+            }
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const pathParts = window.location.pathname.split('/').filter(Boolean);
+        const token = (urlParams.get('token') || pathParts[pathParts.length - 1] || '').trim();
+        const fallbackFromQuery = urlParams.get('fallback');
+        const fallbackUrl = safeParseUrl(fallbackFromQuery);
+        const browserLink = fallbackUrl ? fallbackUrl.toString() : '#';
+        const backendOrigin = window.location.origin;
+        const frontendOrigin = fallbackUrl ? fallbackUrl.origin : '';
+        const deepLinkParams = new URLSearchParams();
+        const browserFallbackValue = browserLink === '#' ? '' : browserLink;
+
+        deepLinkParams.set('backend', backendOrigin);
+        if (frontendOrigin) {
+            deepLinkParams.set('frontend', frontendOrigin);
+        }
+
+        const deepLinkQuery = deepLinkParams.toString();
+        const deepLink = token ? `talentleague://test/${token}?${deepLinkQuery}` : '';
+        const androidIntentLink =
+            token
+                ? `intent://test/${token}?${deepLinkQuery}#Intent;scheme=talentleague;package=com.talentleague.app;S.browser_fallback_url=${encodeURIComponent(browserFallbackValue)};end`
+                : '';
+        const browserBtn = document.getElementById('browserBtn');
+        const openAppBtn = document.getElementById('openAppBtn');
+        const title = document.getElementById('title');
+        const message = document.getElementById('message');
+
+        browserBtn.href = browserLink;
+
+        function revealFallback() {
+            if (document.hidden) {
+                return;
+            }
+
+            title.textContent = 'App Not Opening?';
+            message.textContent = 'If the TalentLeague app is not installed, continue in the browser instead.';
+            openAppBtn.textContent = 'Try Again';
+            if (browserLink !== '#') {
+                browserBtn.classList.remove('hidden');
+            }
+        }
+
+        function openApp() {
+            if (!token) {
+                title.textContent = 'Invalid Test Link';
+                message.textContent = 'This MCQ link is missing the test token. Please request a new email link.';
+                if (browserLink !== '#') {
+                    browserBtn.classList.remove('hidden');
+                }
+                return;
+            }
+
+            if (!frontendOrigin) {
+                title.textContent = 'Link Setup Incomplete';
+                message.textContent = 'This test link is missing the frontend tunnel URL. Generate a fresh email after starting both tunnels.';
+                if (browserLink !== '#') {
+                    browserBtn.classList.remove('hidden');
+                }
+                return;
+            }
+
+            title.textContent = 'Opening TalentLeague App...';
+            message.textContent = 'If the app does not open automatically, use the browser button below.';
+
+            const isAndroid = /Android/i.test(navigator.userAgent);
+            window.location.href = isAndroid ? androidIntentLink : deepLink;
+
+            window.setTimeout(revealFallback, 2200);
+        }
+
+        if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+            window.setTimeout(openApp, 400);
+        } else {
+            title.textContent = 'Open on Mobile Device';
+            message.textContent = 'Please open this email link on your phone to access the MCQ test in the app.';
+            if (browserLink !== '#') {
+                browserBtn.classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
