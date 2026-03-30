@@ -556,8 +556,9 @@ const verifyGoogleToken = async (req, res) => {
             mode: 'online'
         }));
     } catch (error) {
-        console.error('Google Verification Error:', error);
-        res.status(401).json({ message: 'Invalid Google Token' });
+        console.error('Google Verification Error:', error.message);
+        console.error('GOOGLE_CLIENT_ID used:', process.env.GOOGLE_CLIENT_ID);
+        res.status(401).json({ message: 'Invalid Google Token: ' + error.message });
     }
 };
 
