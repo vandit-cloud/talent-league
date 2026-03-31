@@ -394,15 +394,17 @@ export default function ProctoringRules() {
         {/* Mobile App QR Code */}
         <div className="exam-flow-card rounded-2xl p-8 mb-8">
           <div className="flex flex-col md:flex-row items-center gap-8">
-            <div className="relative p-4 bg-white rounded-2xl shadow-lg">
-              <QRCodeSVG
-                value="https://github.com/vandit-cloud/talent-league/releases/latest/download/TalentLeague.apk"
-                size={180}
-                level="H"
-                includeMargin={false}
-                bgColor="#ffffff"
-                fgColor="#1e1b4b"
-              />
+            <div className="relative flex-shrink-0">
+              <div className="p-6 bg-white rounded-2xl shadow-lg">
+                <QRCodeSVG
+                  value="https://github.com/vandit-cloud/talent-league/releases/latest/download/TalentLeague.apk"
+                  size={200}
+                  level="M"
+                  includeMargin={true}
+                  bgColor="#ffffff"
+                  fgColor="#000000"
+                />
+              </div>
               <div className="absolute -bottom-3 -right-3 w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-md">
                 <Smartphone className="w-5 h-5 text-white" />
               </div>
