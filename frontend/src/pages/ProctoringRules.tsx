@@ -435,6 +435,15 @@ export default function ProctoringRules() {
               <p className="exam-flow-muted text-xs mt-3 opacity-70">
                 Android only. You may need to enable "Install from unknown sources" in your phone settings.
               </p>
+              <a
+                href="https://github.com/vandit-cloud/TalentLeague-apk/releases/download/v1.0.0/Talent-League.apk"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 mt-3 text-sm text-indigo-400 hover:text-indigo-300 transition-colors underline underline-offset-2"
+              >
+                <Download className="w-4 h-4" />
+                Can't scan? Download APK directly
+              </a>
             </div>
           </div>
         </div>
