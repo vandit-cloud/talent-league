@@ -439,7 +439,7 @@ export default function ProctoringRules() {
                 href="https://github.com/vandit-cloud/TalentLeague-apk/releases/download/v1.0.0/Talent-League.apk"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 mt-3 text-sm text-indigo-400 hover:text-indigo-300 transition-colors underline underline-offset-2"
+                style={{ color: '#818cf8', display: 'inline-flex', alignItems: 'center', gap: '6px', marginTop: '12px', fontSize: '14px', textDecoration: 'underline' }}
               >
                 <Download className="w-4 h-4" />
                 Can't scan? Download APK directly
