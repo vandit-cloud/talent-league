@@ -394,20 +394,35 @@ export default function ProctoringRules() {
         {/* Mobile App QR Code */}
         <div className="exam-flow-card rounded-2xl p-8 mb-8">
           <div className="flex flex-col md:flex-row items-center gap-8">
-            <div className="relative flex-shrink-0">
-              <div className="p-6 bg-white rounded-2xl shadow-lg">
-                <QRCodeSVG
-                  value="https://github.com/vandit-cloud/TalentLeague-apk/releases/download/v1.0.0/Talent-League.apk"
-                  size={200}
-                  level="M"
-                  includeMargin={true}
-                  bgColor="#ffffff"
-                  fgColor="#000000"
-                />
+            <div className="flex flex-col items-center gap-4 flex-shrink-0">
+              <div className="relative">
+                <div className="p-6 bg-white rounded-2xl shadow-lg">
+                  <QRCodeSVG
+                    value="https://github.com/vandit-cloud/TalentLeague-apk/releases/download/v1.0.0/Talent-League.apk"
+                    size={200}
+                    level="M"
+                    includeMargin={true}
+                    bgColor="#ffffff"
+                    fgColor="#000000"
+                  />
+                </div>
+                <div className="absolute -bottom-3 -right-3 w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-md">
+                  <Smartphone className="w-5 h-5 text-white" />
+                </div>
               </div>
-              <div className="absolute -bottom-3 -right-3 w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-md">
-                <Smartphone className="w-5 h-5 text-white" />
+              <div className="flex items-center gap-3">
+                <div className="h-px w-8 bg-slate-600"></div>
+                <span className="exam-flow-muted text-sm font-medium">OR</span>
+                <div className="h-px w-8 bg-slate-600"></div>
               </div>
+              <a
+                href="https://github.com/vandit-cloud/TalentLeague-apk/releases"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: '#818cf8', fontSize: '14px', textDecoration: 'underline', textAlign: 'center' }}
+              >
+                Download from GitHub
+              </a>
             </div>
             <div className="flex-1 text-center md:text-left">
               <div className="flex items-center gap-2 justify-center md:justify-start mb-2">
@@ -416,12 +431,12 @@ export default function ProctoringRules() {
               </div>
               <p className="exam-flow-muted text-sm leading-relaxed mb-3">
                 Phase 1 (MCQ Test) will be taken on your <strong>mobile phone</strong>.
-                Scan the QR code below with your phone camera to download and install the TalentLeague app.
+                Scan the QR code with your phone camera or use the link to download and install the TalentLeague app.
               </p>
               <div className="flex flex-wrap gap-2 justify-center md:justify-start">
                 <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-indigo-500/20 text-indigo-300">
                   <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full"></span>
-                  Step 1: Scan QR code
+                  Step 1: Scan QR or use link
                 </span>
                 <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-purple-500/20 text-purple-300">
                   <span className="w-1.5 h-1.5 bg-purple-400 rounded-full"></span>
@@ -435,15 +450,6 @@ export default function ProctoringRules() {
               <p className="exam-flow-muted text-xs mt-3 opacity-70">
                 Android only. You may need to enable "Install from unknown sources" in your phone settings.
               </p>
-              <a
-                href="https://github.com/vandit-cloud/TalentLeague-apk/releases"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ color: '#818cf8', display: 'inline-flex', alignItems: 'center', gap: '6px', marginTop: '12px', fontSize: '14px', textDecoration: 'underline' }}
-              >
-                <Download className="w-4 h-4" />
-                Can't scan? Download APK directly
-              </a>
             </div>
           </div>
         </div>
