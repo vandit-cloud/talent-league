@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import { getApiUrl } from '../lib/api/base';
 import { UserPlus, Mail, Briefcase, Code, Send, Copy, CheckCircle, Sparkles, Users, Target, Zap } from 'lucide-react';
 
 export function Candidates() {
@@ -27,7 +28,7 @@ export function Candidates() {
     }
     setLoading(true);
     try {
-      const res = await axios.post('/api/mcq/create', {
+      const res = await axios.post(getApiUrl('/mcq/create'), {
         candidateEmail,
         candidateName,
         skills: parseSkills(),

@@ -22,6 +22,7 @@ import {
 import axios from "axios";
 import { getAssessmentById } from "../data/assessmentCatalog";
 import { useAuth } from "../context/AuthContext";
+import { getApiUrl } from "../lib/api/base";
 import { SELECTED_ASSESSMENT_STORAGE_KEY } from "../utils/assessmentMatching";
 import { getActiveExamFlow, getStoredJobApplication } from "../utils/examFlow";
 
@@ -155,7 +156,7 @@ export default function ProctoringRules() {
     setLoading(true);
     try {
       // Create MCQ test and send email
-      const response = await axios.post("/api/mcq/create", {
+      const response = await axios.post(getApiUrl("/mcq/create"), {
         candidateEmail: candidateEmail,
         candidateName: candidateName,
         skills: skillsToSend,
