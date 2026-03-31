@@ -138,7 +138,7 @@ export function TestPhase2() {
           </div>
 
           <div className="mb-8 grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-            <section className="rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-6 text-slate-900">
+            <section className="rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-6" style={{ color: '#0f172a' }}>
               <div className="mb-4 flex items-center gap-3">
                 <Trophy className="h-6 w-6 text-emerald-600" />
                 <div>
@@ -208,7 +208,7 @@ export function TestPhase2() {
               )}
             </section>
 
-            <section className="rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 p-6 text-slate-900">
+            <section className="rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 p-6" style={{ color: '#0f172a' }}>
               <div className="mb-4 flex items-center gap-3">
                 <MonitorPlay className="h-6 w-6 text-blue-600" />
                 <div>
@@ -218,22 +218,22 @@ export function TestPhase2() {
               </div>
 
               <div className="mb-6 space-y-3">
-                <div className="rounded-xl bg-white p-4 shadow-sm">
+                <div className="rounded-xl bg-white p-4 shadow-sm" style={{ color: '#0f172a' }}>
                   <div className="flex items-center gap-3">
                     <Clock className="h-5 w-5 text-blue-600" />
                     <div>
-                      <p className="font-medium text-slate-900">Next phase</p>
-                      <p className="text-sm text-slate-500">Coding, technical, and problem-solving questions</p>
+                      <p className="font-medium">Next phase</p>
+                      <p className="text-sm" style={{ color: '#64748b' }}>Coding, technical, and problem-solving questions</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="rounded-xl bg-white p-4 shadow-sm">
+                <div className="rounded-xl bg-white p-4 shadow-sm" style={{ color: '#0f172a' }}>
                   <div className="flex items-center gap-3">
                     <Award className="h-5 w-5 text-violet-600" />
                     <div>
-                      <p className="font-medium text-slate-900">Live evaluation</p>
-                      <p className="text-sm text-slate-500">Your camera and screen checks continue in Phase 2</p>
+                      <p className="font-medium">Live evaluation</p>
+                      <p className="text-sm" style={{ color: '#64748b' }}>Your camera and screen checks continue in Phase 2</p>
                     </div>
                   </div>
                 </div>
@@ -249,7 +249,8 @@ export function TestPhase2() {
 
               <button
                 onClick={() => navigate('/')}
-                className="mt-3 w-full rounded-xl border border-slate-300 px-6 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                className="mt-3 w-full rounded-xl border border-slate-300 px-6 py-3 text-sm font-medium transition hover:bg-slate-50"
+                style={{ color: '#334155' }}
               >
                 Go to Dashboard
               </button>
