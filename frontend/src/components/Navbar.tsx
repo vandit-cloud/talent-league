@@ -41,7 +41,7 @@ export function Navbar() {
                 </div>
               </div>
               <div className="ml-3">
-                <span className="text-xl font-bold gradient-text">ResumeAI</span>
+                <span className="text-xl font-bold gradient-text">TalentLeague</span>
                 <div className="flex items-center gap-2">
                   <span className="px-2 py-0.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-xs font-semibold rounded-full">
                     {viewRole === 'recruiter' ? 'Recruiter' : 'Candidate'}

@@ -26,7 +26,7 @@ const roleConfig = {
     title: 'Start your AI-powered career journey',
     subtitle: 'Upload resumes, take proctored tests, and review your results in one place.',
     icon: UserRound,
-    highlights: ['Resume AI scan', 'MCQ + coding rounds', 'Detailed result dashboard']
+    highlights: ['TalentLeague AI scan', 'MCQ + coding rounds', 'Detailed result dashboard']
   },
   recruiter: {
     label: 'Recruiter',
@@ -120,11 +120,10 @@ export function Signup() {
 
   return (
     <div
-      className={`relative min-h-screen overflow-hidden px-4 py-8 sm:px-6 lg:px-8 ${
-        isDark
+      className={`relative min-h-screen overflow-hidden px-4 py-8 sm:px-6 lg:px-8 ${isDark
           ? 'bg-[radial-gradient(circle_at_top_left,_rgba(99,102,241,0.28),_transparent_28%),radial-gradient(circle_at_bottom_right,_rgba(236,72,153,0.16),_transparent_28%),linear-gradient(135deg,#020617_0%,#111827_44%,#1e1b4b_100%)]'
           : 'bg-[radial-gradient(circle_at_top_left,_rgba(99,102,241,0.16),_transparent_24%),radial-gradient(circle_at_bottom_right,_rgba(236,72,153,0.10),_transparent_30%),linear-gradient(135deg,#eff6ff_0%,#ffffff_48%,#ecfeff_100%)]'
-      }`}
+        }`}
     >
       <div className="absolute inset-0 opacity-30">
         <div
@@ -148,7 +147,7 @@ export function Signup() {
               <Brain className="h-5 w-5 text-white" />
             </div>
             <div>
-              <p className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>ResumeAI</p>
+              <p className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>TalentLeague</p>
               <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>Advanced onboarding for career and hiring workflows</p>
             </div>
           </div>
@@ -167,9 +166,8 @@ export function Signup() {
           </div>
 
           <div
-            className={`rounded-[2rem] border p-6 shadow-2xl backdrop-blur-xl ${
-              isDark ? 'border-white/10 bg-white/6 text-white' : 'border-white/70 bg-white/85 text-slate-900'
-            }`}
+            className={`rounded-[2rem] border p-6 shadow-2xl backdrop-blur-xl ${isDark ? 'border-white/10 bg-white/6 text-white' : 'border-white/70 bg-white/85 text-slate-900'
+              }`}
           >
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
@@ -185,9 +183,8 @@ export function Signup() {
               {activeRole.highlights.map((item) => (
                 <div
                   key={item}
-                  className={`rounded-2xl border p-4 ${
-                    isDark ? 'border-white/10 bg-black/10 text-slate-200' : 'border-slate-200 bg-white/70 text-slate-700'
-                  }`}
+                  className={`rounded-2xl border p-4 ${isDark ? 'border-white/10 bg-black/10 text-slate-200' : 'border-slate-200 bg-white/70 text-slate-700'
+                    }`}
                 >
                   <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-500">
                     <CheckCircle2 className="h-5 w-5" />
@@ -200,9 +197,8 @@ export function Signup() {
         </section>
 
         <section
-          className={`rounded-[2rem] border p-6 shadow-2xl backdrop-blur-2xl sm:p-8 ${
-            isDark ? 'border-white/10 bg-slate-950/55' : 'border-white/70 bg-white/88'
-          }`}
+          className={`rounded-[2rem] border p-6 shadow-2xl backdrop-blur-2xl sm:p-8 ${isDark ? 'border-white/10 bg-slate-950/55' : 'border-white/70 bg-white/88'
+            }`}
         >
           <div className="mb-8 flex items-start justify-between gap-4">
             <div>
@@ -219,11 +215,10 @@ export function Signup() {
           </div>
 
           {formError ? (
-            <div className={`mb-5 rounded-2xl border px-4 py-3 text-sm ${
-              isDark
+            <div className={`mb-5 rounded-2xl border px-4 py-3 text-sm ${isDark
                 ? 'border-rose-400/30 bg-rose-500/10 text-rose-200'
                 : 'border-rose-200 bg-rose-50 text-rose-700'
-            }`}>
+              }`}>
               {formError}
             </div>
           ) : null}
@@ -234,13 +229,12 @@ export function Signup() {
                 key={item}
                 type="button"
                 onClick={() => setRole(item)}
-                className={`rounded-2xl border px-4 py-3 text-sm font-semibold transition ${
-                  role === item
+                className={`rounded-2xl border px-4 py-3 text-sm font-semibold transition ${role === item
                     ? 'border-indigo-500 bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/25'
                     : isDark
                       ? 'border-white/10 bg-white/5 text-slate-300 hover:bg-white/10'
                       : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
-                }`}
+                  }`}
               >
                 {item === 'candidate' ? 'Candidate signup' : 'Recruiter signup'}
               </button>
@@ -264,9 +258,8 @@ export function Signup() {
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className={`block w-full rounded-2xl pl-12 pr-4 py-3.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 ${
-                      isDark ? 'border border-white/10 bg-white/5 text-white placeholder:text-slate-500' : 'border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400'
-                    }`}
+                    className={`block w-full rounded-2xl pl-12 pr-4 py-3.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 ${isDark ? 'border border-white/10 bg-white/5 text-white placeholder:text-slate-500' : 'border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400'
+                      }`}
                     placeholder="Enter your full name"
                   />
                 </div>
@@ -288,9 +281,8 @@ export function Signup() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className={`block w-full rounded-2xl pl-12 pr-4 py-3.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 ${
-                      isDark ? 'border border-white/10 bg-white/5 text-white placeholder:text-slate-500' : 'border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400'
-                    }`}
+                    className={`block w-full rounded-2xl pl-12 pr-4 py-3.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 ${isDark ? 'border border-white/10 bg-white/5 text-white placeholder:text-slate-500' : 'border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400'
+                      }`}
                     placeholder="Enter your email"
                   />
                 </div>
@@ -313,9 +305,8 @@ export function Signup() {
                     title={PASSWORD_RULE_TEXT}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className={`block w-full rounded-2xl pl-12 pr-12 py-3.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 ${
-                      isDark ? 'border border-white/10 bg-white/5 text-white placeholder:text-slate-500' : 'border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400'
-                    }`}
+                    className={`block w-full rounded-2xl pl-12 pr-12 py-3.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 ${isDark ? 'border border-white/10 bg-white/5 text-white placeholder:text-slate-500' : 'border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400'
+                      }`}
                     placeholder="Create a strong password"
                   />
                   <button
@@ -346,9 +337,8 @@ export function Signup() {
                     title={PASSWORD_RULE_TEXT}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className={`block w-full rounded-2xl pl-12 pr-4 py-3.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 ${
-                      isDark ? 'border border-white/10 bg-white/5 text-white placeholder:text-slate-500' : 'border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400'
-                    }`}
+                    className={`block w-full rounded-2xl pl-12 pr-4 py-3.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 ${isDark ? 'border border-white/10 bg-white/5 text-white placeholder:text-slate-500' : 'border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400'
+                      }`}
                     placeholder="Confirm your password"
                   />
                 </div>

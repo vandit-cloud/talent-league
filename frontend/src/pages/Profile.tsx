@@ -295,7 +295,7 @@ export function Profile() {
                       </p>
                     </div>
                     <div className="exam-flow-stat-card p-4">
-                      <p className="exam-flow-muted text-sm">Resume AI Snapshot</p>
+                      <p className="exam-flow-muted text-sm">TalentLeague Snapshot</p>
                       <p className="exam-flow-title mt-1 font-semibold">{confidenceText}</p>
                     </div>
                   </div>

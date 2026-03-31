@@ -28,7 +28,7 @@ const createTransporter = async () => {
                 pass: testAccount.pass
             }
         }),
-        from: '"ResumeAI" <no-reply@resumeai.dev>'
+        from: '"TalentLeague" <no-reply@talentleague.dev>'
     };
 };
 

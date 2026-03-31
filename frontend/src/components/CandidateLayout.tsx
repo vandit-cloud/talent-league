@@ -58,7 +58,7 @@ export function CandidateLayout() {
           <div
             className="sidebar-justify flex items-center gap-3 cursor-pointer"
             onClick={() => navigate('/dashboard')}
-            title="ResumeAI"
+            title="TalentLeague"
           >
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl blur-lg opacity-60 group-hover:opacity-80 transition-opacity"></div>
@@ -67,7 +67,7 @@ export function CandidateLayout() {
               </div>
             </div>
             <div className="sidebar-reveal min-w-0">
-              <span className="text-xl font-bold gradient-text">ResumeAI</span>
+              <span className="text-xl font-bold gradient-text">TalentLeague</span>
               <div className="flex items-center gap-1">
                 <Sparkles className="h-3 w-3 text-purple-500" />
                 <span className="app-muted text-[10px] uppercase tracking-wider">Pro</span>

@@ -116,11 +116,10 @@ export function Login() {
 
   return (
     <div
-      className={`relative min-h-screen overflow-hidden px-4 py-8 sm:px-6 lg:px-8 ${
-        isDark
+      className={`relative min-h-screen overflow-hidden px-4 py-8 sm:px-6 lg:px-8 ${isDark
           ? 'bg-[radial-gradient(circle_at_top_left,_rgba(99,102,241,0.28),_transparent_28%),radial-gradient(circle_at_bottom_right,_rgba(236,72,153,0.18),_transparent_30%),linear-gradient(135deg,#020617_0%,#111827_45%,#1e1b4b_100%)]'
           : 'bg-[radial-gradient(circle_at_top_left,_rgba(99,102,241,0.16),_transparent_24%),radial-gradient(circle_at_bottom_right,_rgba(14,165,233,0.14),_transparent_30%),linear-gradient(135deg,#eff6ff_0%,#ffffff_48%,#ecfeff_100%)]'
-      }`}
+        }`}
     >
       <div className="absolute inset-0 opacity-30">
         <div
@@ -144,7 +143,7 @@ export function Login() {
               <Brain className="h-5 w-5 text-white" />
             </div>
             <div>
-              <p className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>ResumeAI</p>
+              <p className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>TalentLeague</p>
               <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>Advanced hiring and assessment workspace</p>
             </div>
           </div>
@@ -166,9 +165,8 @@ export function Login() {
             {designHighlights.map((item) => (
               <div
                 key={item}
-                className={`rounded-2xl border p-4 backdrop-blur-xl ${
-                  isDark ? 'border-white/10 bg-white/5 text-slate-200' : 'border-slate-200 bg-white/80 text-slate-700'
-                }`}
+                className={`rounded-2xl border p-4 backdrop-blur-xl ${isDark ? 'border-white/10 bg-white/5 text-slate-200' : 'border-slate-200 bg-white/80 text-slate-700'
+                  }`}
               >
                 <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-500">
                   <CheckCircle2 className="h-5 w-5" />
@@ -179,9 +177,8 @@ export function Login() {
           </div>
 
           <div
-            className={`rounded-[2rem] border p-6 shadow-2xl backdrop-blur-xl ${
-              isDark ? 'border-white/10 bg-white/6 text-white' : 'border-white/70 bg-white/85 text-slate-900'
-            }`}
+            className={`rounded-[2rem] border p-6 shadow-2xl backdrop-blur-xl ${isDark ? 'border-white/10 bg-white/6 text-white' : 'border-white/70 bg-white/85 text-slate-900'
+              }`}
           >
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
@@ -203,13 +200,12 @@ export function Login() {
                     key={cardRole}
                     type="button"
                     onClick={() => setRole(cardRole as 'candidate' | 'recruiter')}
-                    className={`rounded-2xl border p-4 text-left transition-all ${
-                      active
+                    className={`rounded-2xl border p-4 text-left transition-all ${active
                         ? 'border-indigo-400/40 bg-gradient-to-br from-indigo-500/15 to-purple-500/15 shadow-lg shadow-indigo-500/15'
                         : isDark
                           ? 'border-white/10 bg-black/10 hover:bg-white/8'
                           : 'border-slate-200 bg-white/75 hover:bg-slate-50'
-                    }`}
+                      }`}
                   >
                     <div className="mb-3 flex items-center justify-between gap-3">
                       <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-500/15 text-indigo-500">
@@ -231,9 +227,8 @@ export function Login() {
         </section>
 
         <section
-          className={`rounded-[2rem] border p-6 shadow-2xl backdrop-blur-2xl sm:p-8 ${
-            isDark ? 'border-white/10 bg-slate-950/55' : 'border-white/70 bg-white/88'
-          }`}
+          className={`rounded-[2rem] border p-6 shadow-2xl backdrop-blur-2xl sm:p-8 ${isDark ? 'border-white/10 bg-slate-950/55' : 'border-white/70 bg-white/88'
+            }`}
         >
           <div className="mb-8 flex items-start justify-between gap-4">
             <div>
@@ -255,13 +250,12 @@ export function Login() {
                 key={item}
                 type="button"
                 onClick={() => setRole(item)}
-                className={`rounded-2xl border px-4 py-3 text-sm font-semibold transition ${
-                  role === item
+                className={`rounded-2xl border px-4 py-3 text-sm font-semibold transition ${role === item
                     ? 'border-indigo-500 bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/25'
                     : isDark
                       ? 'border-white/10 bg-white/5 text-slate-300 hover:bg-white/10'
                       : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
-                }`}
+                  }`}
               >
                 {item === 'candidate' ? 'Candidate login' : 'Recruiter login'}
               </button>
@@ -270,21 +264,19 @@ export function Login() {
 
           <form className="space-y-5" onSubmit={handleSubmit}>
             {registered ? (
-              <div className={`rounded-2xl border px-4 py-3 text-sm ${
-                isDark
+              <div className={`rounded-2xl border px-4 py-3 text-sm ${isDark
                   ? 'border-emerald-400/30 bg-emerald-500/10 text-emerald-200'
                   : 'border-emerald-200 bg-emerald-50 text-emerald-700'
-              }`}>
+                }`}>
                 Account created successfully. Please sign in to continue.
               </div>
             ) : null}
 
             {errorMsg ? (
-              <div className={`rounded-2xl border px-4 py-3 text-sm ${
-                isDark
+              <div className={`rounded-2xl border px-4 py-3 text-sm ${isDark
                   ? 'border-rose-400/30 bg-rose-500/10 text-rose-200'
                   : 'border-rose-200 bg-rose-50 text-rose-700'
-              }`}>
+                }`}>
                 {errorMsg}
               </div>
             ) : null}
@@ -306,9 +298,8 @@ export function Login() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className={`block w-full rounded-2xl pl-12 pr-4 py-3.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 ${
-                      isDark ? 'border border-white/10 bg-white/5 text-white placeholder:text-slate-500' : 'border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400'
-                    }`}
+                    className={`block w-full rounded-2xl pl-12 pr-4 py-3.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 ${isDark ? 'border border-white/10 bg-white/5 text-white placeholder:text-slate-500' : 'border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400'
+                      }`}
                     placeholder="Enter your email"
                   />
                 </div>
@@ -332,9 +323,8 @@ export function Login() {
                     title={PASSWORD_RULE_TEXT}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className={`block w-full rounded-2xl pl-12 pr-12 py-3.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 ${
-                      isDark ? 'border border-white/10 bg-white/5 text-white placeholder:text-slate-500' : 'border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400'
-                    }`}
+                    className={`block w-full rounded-2xl pl-12 pr-12 py-3.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 ${isDark ? 'border border-white/10 bg-white/5 text-white placeholder:text-slate-500' : 'border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400'
+                      }`}
                     placeholder="Enter your password"
                   />
                   <button
@@ -415,11 +405,10 @@ export function Login() {
                 const backendUrl = getBackendBaseUrl();
                 window.location.href = `${backendUrl}/api/auth/oauth/linkedin/start?role=${role}&returnUrl=${encodeURIComponent(window.location.pathname)}`;
               }}
-              className={`flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold transition ${
-                isDark
+              className={`flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold transition ${isDark
                   ? 'border border-white/10 bg-black text-white hover:bg-slate-950'
                   : 'border border-slate-200 bg-white text-slate-800 hover:bg-slate-50'
-              }`}
+                }`}
             >
               <Linkedin className="h-4 w-4" />
               LinkedIn

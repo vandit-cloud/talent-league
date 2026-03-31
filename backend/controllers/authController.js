@@ -75,12 +75,12 @@ const getOtpValidationTargets = async (email) => {
 const buildResetOtpEmailHtml = ({ name, otp }) => `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0f172a; color: #ffffff; padding: 32px; border-radius: 18px;">
         <div style="margin-bottom: 24px;">
-            <h2 style="margin: 0; font-size: 28px; color: #ffffff;">Your ResumeAI password reset OTP</h2>
+            <h2 style="margin: 0; font-size: 28px; color: #ffffff;">Your TalentLeague password reset OTP</h2>
             <p style="margin: 12px 0 0; color: #cbd5e1; line-height: 1.7;">Hello ${name || 'there'}, use the one-time password below to continue your password reset.</p>
         </div>
 
         <div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); padding: 20px; border-radius: 16px; margin-bottom: 24px;">
-            <p style="margin: 0 0 12px; color: #94a3b8; font-size: 14px;">Enter this OTP on the ResumeAI forgot password page:</p>
+            <p style="margin: 0 0 12px; color: #94a3b8; font-size: 14px;">Enter this OTP on the TalentLeague forgot password page:</p>
             <div style="font-size: 34px; letter-spacing: 10px; font-weight: 700; color: #ffffff; text-align: center; background: rgba(99,102,241,0.18); border-radius: 14px; padding: 18px 12px;">
                 ${otp}
             </div>
@@ -400,7 +400,7 @@ const forgotPassword = async (req, res) => {
 
         const emailResult = await sendHtmlEmail({
             to: user.email,
-            subject: 'Your ResumeAI password reset OTP',
+            subject: 'Your TalentLeague password reset OTP',
             html: buildResetOtpEmailHtml({
                 name: user.name,
                 otp
