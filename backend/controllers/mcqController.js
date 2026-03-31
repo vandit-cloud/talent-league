@@ -2,7 +2,7 @@ const MCQTest = require('../models/MCQTest');
 const Job = require('../models/Job');
 const AssessmentTemplate = require('../models/AssessmentTemplate');
 const crypto = require('crypto');
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 const fs = require('fs');
 const path = require('path');
 const Groq = require('groq-sdk');
@@ -341,9 +341,6 @@ const createAndSendMCQTest = async (req, res) => {
 
 // Send test email
 const sendTestEmail = async (email, name, appRedirectLink, testLink, duration) => {
-    const emailUser = process.env.EMAIL_USER;
-    const emailPass = process.env.EMAIL_PASS;
-
     const html = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #1a1a1a; color: #ffffff; padding: 30px; border-radius: 12px;">
             <h2 style="color: #b794f6;">Hello ${name || 'Test Candidate'},</h2>
@@ -390,61 +387,31 @@ const sendTestEmail = async (email, name, appRedirectLink, testLink, duration) =
     `;
 
     try {
-        let transporter;
-        let previewUrl;
-        if (emailUser && emailPass) {
-            transporter = nodemailer.createTransport({
-                service: 'gmail',
-                auth: {
-                    user: emailUser,
-                    pass: emailPass
-                },
-                connectionTimeout: 10000,
-                greetingTimeout: 10000,
-                socketTimeout: 15000
-            });
-        } else {
-            console.log('⚠️ No email credentials found; using Ethereal test account.');
-            const testAccount = await nodemailer.createTestAccount();
-            transporter = nodemailer.createTransport({
-                host: 'smtp.ethereal.email',
-                port: 587,
-                secure: false,
-                auth: {
-                    user: testAccount.user,
-                    pass: testAccount.pass
-                }
-            });
+        const resendApiKey = process.env.RESEND_API_KEY;
+        if (!resendApiKey) {
+            console.error('RESEND_API_KEY not set');
+            return { emailSent: false, error: 'Email service not configured' };
         }
 
-        const fromAddress = emailUser || '"TalentLeague" <no-reply@talentleague.dev>';
-        console.log(`📧 Attempting to send email to ${email} from ${fromAddress}...`);
+        const resend = new Resend(resendApiKey);
+        console.log(`Sending email to ${email} via Resend...`);
 
-        const info = await transporter.sendMail({
-            from: fromAddress,
+        const { data, error } = await resend.emails.send({
+            from: 'TalentLeague <onboarding@resend.dev>',
             to: email,
             subject: 'Your MCQ Test Link - TalentLeague',
             html
         });
 
-        console.log('📬 Nodemailer Handover Result:', {
-            messageId: info.messageId,
-            accepted: info.accepted,
-            rejected: info.rejected,
-            response: info.response
-        });
-
-        if (!emailUser || !emailPass) {
-            previewUrl = nodemailer.getTestMessageUrl(info) || undefined;
-            console.log('🧪 Ethereal Test Link:', previewUrl);
+        if (error) {
+            console.error('RESEND ERROR:', error);
+            return { emailSent: false, error: error.message };
         }
 
-        // If Gmail accepted it, we consider it sent
-        const sentSuccessfully = info.accepted && info.accepted.length > 0;
-
-        return { emailSent: sentSuccessfully, previewUrl };
+        console.log('Email sent successfully:', data?.id);
+        return { emailSent: true };
     } catch (err) {
-        console.error('EMAIL SEND ERROR:', err.message, err.code, err.responseCode);
+        console.error('EMAIL SEND ERROR:', err.message);
         return { emailSent: false, error: err.message };
     }
 };
