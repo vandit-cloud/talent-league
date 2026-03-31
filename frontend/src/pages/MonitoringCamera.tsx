@@ -587,7 +587,9 @@ export default function MonitoringCamera() {
 
   useEffect(() => {
     const activeToken = localStorage.getItem("activeMcqToken");
+    console.log("MCQ polling - activeMcqToken:", activeToken);
     if (!activeToken) {
+      console.log("No activeMcqToken found, skipping MCQ completion polling");
       return;
     }
 
@@ -595,12 +597,16 @@ export default function MonitoringCamera() {
 
     const checkPhase1Completion = async () => {
       try {
-        const response = await fetch(getApiUrl(`/mcq/result/${activeToken}`));
+        const url = getApiUrl(`/mcq/result/${activeToken}`);
+        console.log("Polling MCQ status:", url);
+        const response = await fetch(url);
         if (!response.ok) {
+          console.log("MCQ poll response not ok:", response.status);
           return;
         }
 
         const result = await response.json();
+        console.log("MCQ poll result:", result.status);
         if (!isMounted || result.status !== "completed") {
           return;
         }
