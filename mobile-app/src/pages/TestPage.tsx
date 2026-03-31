@@ -155,9 +155,17 @@ const TestPage: React.FC<TestPageProps> = ({ mcqToken, backendUrl, frontendUrl }
       setAnswers(new Array(questionsData.questions.length).fill(-1));
       setTimeRemaining(questionsData.duration * 60);
     } catch (err: any) {
-      const errorMsg = `${err.message} | Backend: ${resolvedBackendUrl} | Token: ${token?.substring(0, 10)}...`;
-      setError(errorMsg);
       console.error('Error fetching MCQ test:', err);
+      const msg = err.message || '';
+      if (msg.includes('already completed') || msg.includes('Test already')) {
+        setError('This test has already been submitted. Please check with your recruiter for a new test link.');
+      } else if (msg.includes('expired')) {
+        setError('This test link has expired. Please contact your recruiter for a new link.');
+      } else if (msg.includes('Invalid') || msg.includes('not found')) {
+        setError('This test link is invalid or no longer available. Please request a new link from your recruiter.');
+      } else {
+        setError('Unable to load the test. Please check your internet connection and try again.');
+      }
     } finally {
       setIsLoadingTest(false);
     }
@@ -214,7 +222,7 @@ const TestPage: React.FC<TestPageProps> = ({ mcqToken, backendUrl, frontendUrl }
     } catch (err) {
       console.error('Error submitting test:', err);
       setTestCompleted(false);
-      setError(`Failed to submit test | Backend: ${resolvedBackendUrl}`);
+      setError('Failed to submit your test. Please check your internet connection and try again.');
     }
   };
 
