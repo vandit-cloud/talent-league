@@ -235,15 +235,6 @@ export function MCQTest() {
 
       localStorage.setItem('phase1McqResult', JSON.stringify(phase1Result));
       
-      // Redirect to the Phase 2 handoff page
-      setTimeout(() => {
-        navigate('/test-phase-2', {
-          state: {
-            phase1Result,
-          },
-        });
-      }, 1200);
-      
     } catch (err: any) {
       alert('Failed to submit test: ' + (err.response?.data?.message || 'Unknown error'));
       setSubmitting(false);
@@ -281,13 +272,37 @@ export function MCQTest() {
 
   if (testCompleted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center p-4">
         <div className="bg-white rounded-xl p-8 max-w-md text-center shadow-2xl">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Test Completed!</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Phase 1 Completed!</h2>
           <p className="text-4xl font-bold text-green-600 mb-2">{score}%</p>
           <p className="text-gray-600 mb-4">Your score</p>
-          <p className="text-sm text-gray-500">Redirecting to Phase 2...</p>
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mt-4 mb-4">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <AlertTriangle className="w-5 h-5 text-amber-600" />
+              <h3 className="font-semibold text-amber-800">Phase 2: Coding Assessment</h3>
+            </div>
+            <p className="text-amber-700 text-sm leading-relaxed">
+              Phase 2 requires a <strong>laptop or desktop computer</strong> with a webcam.
+              Please open the link below on your laptop to continue.
+            </p>
+            <div className="bg-white border border-amber-300 rounded-md p-3 mt-3">
+              <p className="text-xs text-gray-500 mb-1">Open this on your laptop:</p>
+              <p className="text-sm font-mono text-indigo-600 break-all select-all">
+                {window.location.origin}/test-phase-2
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => {
+              navigator.clipboard.writeText(`${window.location.origin}/test-phase-2`);
+              alert('Link copied! Open it on your laptop.');
+            }}
+            className="bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors w-full"
+          >
+            Copy Link for Laptop
+          </button>
         </div>
       </div>
     );
