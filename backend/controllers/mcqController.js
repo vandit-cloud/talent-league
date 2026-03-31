@@ -2,7 +2,7 @@ const MCQTest = require('../models/MCQTest');
 const Job = require('../models/Job');
 const AssessmentTemplate = require('../models/AssessmentTemplate');
 const crypto = require('crypto');
-const Brevo = require('@getbrevo/brevo');
+const { BrevoClient } = require('@getbrevo/brevo');
 const fs = require('fs');
 const path = require('path');
 const Groq = require('groq-sdk');
@@ -394,22 +394,20 @@ const sendTestEmail = async (email, name, appRedirectLink, testLink, duration) =
             return { emailSent: false, error: 'Email service not configured' };
         }
 
-        const apiInstance = new Brevo.TransactionalEmailsApi();
-        apiInstance.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, brevoApiKey);
-
+        const client = new BrevoClient({ token: brevoApiKey });
         console.log(`Sending email to ${email} via Brevo...`);
 
-        const sendSmtpEmail = new Brevo.SendSmtpEmail();
-        sendSmtpEmail.sender = { name: 'TalentLeague', email: 'noreply@talentleague.dev' };
-        sendSmtpEmail.to = [{ email }];
-        sendSmtpEmail.subject = 'Your MCQ Test Link - TalentLeague';
-        sendSmtpEmail.htmlContent = html;
+        const result = await client.transactionalEmails.sendTransacEmail({
+            sender: { name: 'TalentLeague', email: 'noreply@talentleague.dev' },
+            to: [{ email }],
+            subject: 'Your MCQ Test Link - TalentLeague',
+            htmlContent: html
+        });
 
-        const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
-        console.log('Email sent successfully:', result?.body?.messageId);
+        console.log('Email sent successfully:', result?.messageId);
         return { emailSent: true };
     } catch (err) {
-        console.error('EMAIL SEND ERROR:', err.message);
+        console.error('EMAIL SEND ERROR:', err.message, err.body || '');
         return { emailSent: false, error: err.message };
     }
 };
