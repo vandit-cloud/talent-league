@@ -357,19 +357,20 @@ const sendTestEmail = async (email, name, appRedirectLink, testLink, duration) =
                 </ul>
             </div>
 
-            <a href="${testLink}"
+            <a href="${appRedirectLink}"
                style="display: block; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
                       color: white; padding: 20px 50px; text-decoration: none; border-radius: 12px;
                       font-weight: bold; text-align: center; margin: 30px 0; font-size: 20px;
                       box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);">
-                Start Your Test
+                Open in App
             </a>
 
-            <div style="background: #2d2d2d; padding: 15px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #6366f1;">
-                <p style="color: #9ca3af; font-size: 13px; margin: 0; line-height: 1.5;">
-                    <strong style="color: #b794f6;">Tip:</strong> You can take this test on your phone or computer. Just click the button above — it works on any device with a browser.
-                </p>
-            </div>
+            <a href="${testLink}"
+               style="display: block; background: #2d2d2d; color: #d1d5db; padding: 16px 40px; text-decoration: none;
+                      border-radius: 12px; font-weight: bold; text-align: center; margin: -10px 0 30px; font-size: 16px;
+                      border: 1px solid #4b5563;">
+                Open in Browser
+            </a>
 
             <p style="text-align: center; color: #f59e0b; font-weight: bold; margin-top: 30px; font-size: 14px;">
                 This link is unique to you. Do not share it with anyone.

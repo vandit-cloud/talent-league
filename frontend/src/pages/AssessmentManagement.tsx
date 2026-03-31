@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { getApiUrl } from '../lib/api/base';
 import { useAuth } from '../context/AuthContext';
 import { 
   Plus, 
@@ -83,7 +84,7 @@ export default function AssessmentManagement() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get(`/api/assessment-templates?recruiterId=${user?._id}`);
+        const res = await axios.get(getApiUrl(`/assessment-templates?recruiterId=${user?._id}`));
         setAssessments(res.data);
         
         // Load fallback mock for skills/questions if needed, or keep empty
@@ -116,7 +117,7 @@ export default function AssessmentManagement() {
 
   const handleCreateAssessment = async () => {
     try {
-      const res = await axios.post('/api/assessment-templates', {
+      const res = await axios.post(getApiUrl('/assessment-templates'), {
         ...newAssessment,
         type: 'scratch',
         recruiterId: user?._id

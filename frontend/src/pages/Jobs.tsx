@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, MapPin, Briefcase, DollarSign, Clock, Building, Sparkles, Target, Zap, ChevronRight } from 'lucide-react';
 import axios from 'axios';
+import { getApiUrl } from '../lib/api/base';
 import { setActiveExamFlow, storeSelectedJobApplication } from '../utils/examFlow';
 
 interface Job {
@@ -34,7 +35,7 @@ export function Jobs() {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const res = await axios.get('/api/jobs');
+        const res = await axios.get(getApiUrl('/jobs'));
         setJobs(res.data);
       } catch (e) {
         console.error('Failed to fetch jobs:', e);

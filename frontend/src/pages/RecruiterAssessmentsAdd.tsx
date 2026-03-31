@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { getApiUrl } from '../lib/api/base';
 import { useAuth } from '../context/AuthContext';
 import { 
   UserPlus, 
@@ -59,7 +60,7 @@ export function RecruiterAssessmentsAdd() {
           .filter(Boolean)
           .map(s => ({ name: s, proficiency: 'Intermediate', category: 'General' }));
           
-        const res = await axios.post('/api/mcq/create', {
+        const res = await axios.post(getApiUrl('/mcq/create'), {
           candidateEmail: r.email,
           candidateName: r.name,
           skills: skillsArr,

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Camera, Clock, AlertTriangle, CheckCircle, ChevronLeft, ChevronRight, Send } from 'lucide-react';
 import axios from 'axios';
+import { getApiUrl } from '../lib/api/base';
 
 interface Question {
   question: string;
@@ -43,12 +44,12 @@ export function MCQTest() {
   useEffect(() => {
     const verifyTest = async () => {
       try {
-        const response = await axios.get(`/api/mcq/verify/${token}`);
+        const response = await axios.get(getApiUrl(`/mcq/verify/${token}`));
         setCandidateName(response.data.candidateName);
         setTimeLeft(response.data.duration * 60);
         
         // Load questions
-        const questionsRes = await axios.get(`/api/mcq/questions/${token}`);
+        const questionsRes = await axios.get(getApiUrl(`/mcq/questions/${token}`));
         setQuestions(questionsRes.data.questions);
         setAnswers(new Array(questionsRes.data.questions.length).fill(-1));
         setLoading(false);
@@ -213,7 +214,7 @@ export function MCQTest() {
     
     setSubmitting(true);
     try {
-      const response = await axios.post(`/api/mcq/submit/${token}`, {
+      const response = await axios.post(getApiUrl(`/mcq/submit/${token}`), {
         answers,
         violations
       });

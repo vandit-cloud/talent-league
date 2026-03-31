@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { getApiUrl } from '../lib/api/base';
 import { Users, ClipboardList, Briefcase, ChartBar, Sparkles, Target, Zap, ChevronRight } from 'lucide-react';
 
 export function RecruiterDashboard() {
@@ -74,7 +75,7 @@ export function RecruiterDashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await axios.get(`/api/mcq/stats?recruiterId=${user?._id}`);
+        const res = await axios.get(getApiUrl(`/mcq/stats?recruiterId=${user?._id}`));
         if (res.data) {
           setLiveStats({
             totalCandidates: String(res.data.totalCandidates || '0'),

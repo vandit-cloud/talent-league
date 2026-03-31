@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
+import { getApiUrl } from '../lib/api/base';
 import { Briefcase, Plus, Search, MapPin, DollarSign, Users, Clock, Edit, Trash2, Eye, Sparkles, Target, Zap, ChevronRight } from 'lucide-react';
 
 interface Job {
@@ -46,7 +47,7 @@ export function RecruiterJobs() {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const res = await axios.get(`/api/jobs?recruiterId=${user?._id}`);
+        const res = await axios.get(getApiUrl(`/jobs?recruiterId=${user?._id}`));
         setJobs(res.data);
       } catch (e) {
         console.error('Failed to fetch jobs:', e);
@@ -97,7 +98,7 @@ export function RecruiterJobs() {
 
   const handleCreateJob = async () => {
     try {
-      const res = await axios.post('/api/jobs', {
+      const res = await axios.post(getApiUrl('/jobs'), {
         ...newJob,
         recruiterId: user?._id
       });

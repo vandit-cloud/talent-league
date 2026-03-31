@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { getApiUrl } from '../lib/api/base';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Users, Mail, Calendar, Clock, Award, Filter, Search, RefreshCw, Eye, FileText, BarChart3, Sparkles, ChevronRight } from 'lucide-react';
@@ -31,7 +32,7 @@ export function RecruiterCandidateDetails() {
     try {
       const params = { recruiterId: user?._id };
       if (emailFilter) Object.assign(params, { email: emailFilter });
-      const res = await axios.get('/api/mcq/all', { params });
+      const res = await axios.get(getApiUrl('/mcq/all'), { params });
       setRows(res.data?.tests || []);
     } catch (e) {
       setRows([]);
