@@ -11,7 +11,7 @@ if (!rootEl) throw new Error("Root element not found");
 
 const googleClientId =
   import.meta.env.VITE_GOOGLE_CLIENT_ID ||
-  "22477426707-hhsppqldbs2mta6f6bvdjliggmun9773.apps.googleusercontent.com";
+  "222922228938-7h7qidkkibnntepkei225gb8v34sid0t.apps.googleusercontent.com";
 
 createRoot(rootEl).render(
   <StrictMode>
