@@ -394,13 +394,14 @@ const sendTestEmail = async (email, name, appRedirectLink, testLink, duration) =
         let previewUrl;
         if (emailUser && emailPass) {
             transporter = nodemailer.createTransport({
-                host: 'smtp.gmail.com',
-                port: 465,
-                secure: true, // Use SSL
+                service: 'gmail',
                 auth: {
                     user: emailUser,
                     pass: emailPass
-                }
+                },
+                connectionTimeout: 10000,
+                greetingTimeout: 10000,
+                socketTimeout: 15000
             });
         } else {
             console.log('⚠️ No email credentials found; using Ethereal test account.');
