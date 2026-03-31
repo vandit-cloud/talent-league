@@ -394,7 +394,7 @@ const sendTestEmail = async (email, name, appRedirectLink, testLink, duration) =
             return { emailSent: false, error: 'Email service not configured' };
         }
 
-        const client = new BrevoClient({ token: brevoApiKey });
+        const client = new BrevoClient({ apiKey: brevoApiKey });
         console.log(`Sending email to ${email} via Brevo...`);
 
         const result = await client.transactionalEmails.sendTransacEmail({
