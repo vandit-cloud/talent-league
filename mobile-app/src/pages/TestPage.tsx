@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FileText, Clock, Award, TrendingUp, Play, CheckCircle, XCircle } from 'lucide-react';
+import { FileText, Clock, Award, TrendingUp, Play, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import './TestPage.css';
 
@@ -188,11 +188,6 @@ const TestPage: React.FC<TestPageProps> = ({ mcqToken, backendUrl, frontendUrl }
       return;
     }
 
-    if (!resolvedFrontendUrl) {
-      setError(getMissingUrlError('frontend'));
-      return;
-    }
-
     setTestCompleted(true);
 
     try {
@@ -208,12 +203,6 @@ const TestPage: React.FC<TestPageProps> = ({ mcqToken, backendUrl, frontendUrl }
 
       const result = await response.json();
       setTestResult(result);
-
-      const phase2Url = `${resolvedFrontendUrl}/test-phase-2?token=${encodeURIComponent(mcqToken)}&backend=${encodeURIComponent(resolvedBackendUrl)}`;
-
-      window.setTimeout(() => {
-        openExternalPhase2Page(phase2Url);
-      }, 1000);
     } catch (err) {
       console.error('Error submitting test:', err);
       setTestCompleted(false);
@@ -255,12 +244,25 @@ const TestPage: React.FC<TestPageProps> = ({ mcqToken, backendUrl, frontendUrl }
       <div className="test-page">
         <div className="result-container">
           <CheckCircle size={64} color="#10b981" />
-          <h1>Test Completed!</h1>
+          <h1>Phase 1 Completed!</h1>
           <div className="result-score">
             <h2>Your Score: {testResult.score}%</h2>
             <p>{testResult.correctAnswers} out of {testResult.totalQuestions} correct</p>
           </div>
-          <p className="result-message">Redirecting to Phase 2 web page...</p>
+          <div style={{
+            background: 'rgba(251, 191, 36, 0.1)',
+            border: '1px solid rgba(251, 191, 36, 0.3)',
+            borderRadius: '12px',
+            padding: '16px',
+            marginTop: '20px',
+            textAlign: 'center'
+          }}>
+            <AlertTriangle size={24} color="#f59e0b" style={{ marginBottom: '8px' }} />
+            <h3 style={{ color: '#f59e0b', margin: '0 0 8px 0', fontSize: '16px' }}>Phase 2: Coding Assessment</h3>
+            <p style={{ color: '#94a3b8', fontSize: '14px', lineHeight: '1.5', margin: 0 }}>
+              Phase 2 will automatically start on your <strong style={{ color: '#e2e8f0' }}>laptop</strong> where monitoring is open. You can close this app now.
+            </p>
+          </div>
         </div>
       </div>
     );
