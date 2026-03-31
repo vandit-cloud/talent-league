@@ -436,7 +436,7 @@ export default function ProctoringRules() {
                 Android only. You may need to enable "Install from unknown sources" in your phone settings.
               </p>
               <a
-                href="https://github.com/vandit-cloud/TalentLeague-apk/releases/download/v1.0.0/Talent-League.apk"
+                href="https://github.com/vandit-cloud/TalentLeague-apk/releases"
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ color: '#818cf8', display: 'inline-flex', alignItems: 'center', gap: '6px', marginTop: '12px', fontSize: '14px', textDecoration: 'underline' }}
