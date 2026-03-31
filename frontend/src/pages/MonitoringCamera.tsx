@@ -624,7 +624,8 @@ export default function MonitoringCamera() {
 
         localStorage.setItem("phase1McqResult", JSON.stringify(phase1Result));
         localStorage.removeItem("activeMcqToken");
-        navigate("/test-phase-2", {
+        console.log("Phase 1 completed! Navigating to Phase 2 with token:", activeToken);
+        navigate(`/test-phase-2?token=${activeToken}`, {
           replace: true,
           state: {
             phase1Result,

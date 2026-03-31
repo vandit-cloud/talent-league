@@ -10,6 +10,7 @@ import {
   Shield,
   Trophy,
 } from 'lucide-react';
+import { getApiUrl } from '../lib/api/base';
 
 interface Phase1Result {
   token: string;
@@ -26,13 +27,6 @@ interface LocationState {
   phase1Result?: Phase1Result;
 }
 
-const getBackendUrl = (backendFromQuery: string | null) => {
-  if (backendFromQuery) {
-    return backendFromQuery;
-  }
-
-  return window.location.origin.replace(/:5173$/, ':5000');
-};
 
 export function TestPhase2() {
   const navigate = useNavigate();
@@ -42,7 +36,6 @@ export function TestPhase2() {
 
   const queryParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
   const tokenFromQuery = queryParams.get('token');
-  const backendFromQuery = queryParams.get('backend');
 
   const phase1Result = useMemo(() => {
     const stateResult = (location.state as LocationState | null)?.phase1Result;
@@ -77,8 +70,7 @@ export function TestPhase2() {
       setLoadingResult(true);
 
       try {
-        const backendUrl = getBackendUrl(backendFromQuery);
-        const response = await fetch(`${backendUrl}/api/mcq/result/${tokenFromQuery}`);
+        const response = await fetch(getApiUrl(`/mcq/result/${tokenFromQuery}`));
 
         if (!response.ok) {
           throw new Error('Failed to load Phase 1 result');
