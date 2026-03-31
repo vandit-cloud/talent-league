@@ -138,59 +138,59 @@ export function TestPhase2() {
           </div>
 
           <div className="mb-8 grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-            <section className="rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-6" style={{ color: '#0f172a' }}>
+            <section className="rounded-2xl border border-emerald-500/30 bg-emerald-950/40 p-6">
               <div className="mb-4 flex items-center gap-3">
-                <Trophy className="h-6 w-6 text-emerald-600" />
+                <Trophy className="h-6 w-6 text-emerald-400" />
                 <div>
-                  <h2 className="text-xl font-semibold text-slate-900">Phase 1 MCQ Result</h2>
-                  <p className="text-sm text-slate-500">Submitted on {submittedAtLabel}</p>
+                  <h2 className="text-xl font-semibold text-emerald-300">Phase 1 MCQ Result</h2>
+                  <p className="text-sm text-slate-400">Submitted on {submittedAtLabel}</p>
                 </div>
               </div>
 
               {loadingResult ? (
-                <div className="rounded-2xl bg-white p-6 text-center shadow-sm">
-                  <p className="text-lg font-semibold text-slate-900">Loading Phase 1 result...</p>
-                  <p className="mt-2 text-sm text-slate-500">Please wait while we fetch your MCQ summary.</p>
+                <div className="rounded-2xl bg-slate-800/60 p-6 text-center">
+                  <p className="text-lg font-semibold text-white">Loading Phase 1 result...</p>
+                  <p className="mt-2 text-sm text-slate-400">Please wait while we fetch your MCQ summary.</p>
                 </div>
               ) : phase1Result ? (
                 <>
                   <div className="mb-6 grid gap-4 sm:grid-cols-3">
-                    <div className="rounded-2xl bg-white p-4 text-center shadow-sm">
-                      <p className="text-sm text-slate-500">Candidate</p>
-                      <p className="mt-2 text-lg font-semibold text-slate-900">{phase1Result.candidateName || 'Candidate'}</p>
+                    <div className="rounded-2xl bg-slate-800/60 p-4 text-center">
+                      <p className="text-sm text-slate-400">Candidate</p>
+                      <p className="mt-2 text-lg font-semibold text-white">{phase1Result.candidateName || 'Candidate'}</p>
                     </div>
-                    <div className="rounded-2xl bg-white p-4 text-center shadow-sm">
-                      <p className="text-sm text-slate-500">Score</p>
-                      <p className="mt-2 text-3xl font-bold text-emerald-600">{phase1Result.score}%</p>
+                    <div className="rounded-2xl bg-slate-800/60 p-4 text-center">
+                      <p className="text-sm text-slate-400">Score</p>
+                      <p className="mt-2 text-3xl font-bold text-emerald-400">{phase1Result.score}%</p>
                     </div>
-                    <div className="rounded-2xl bg-white p-4 text-center shadow-sm">
-                      <p className="text-sm text-slate-500">Correct Answers</p>
-                      <p className="mt-2 text-2xl font-bold text-slate-900">
+                    <div className="rounded-2xl bg-slate-800/60 p-4 text-center">
+                      <p className="text-sm text-slate-400">Correct Answers</p>
+                      <p className="mt-2 text-2xl font-bold text-white">
                         {phase1Result.correctAnswers}/{phase1Result.totalQuestions}
                       </p>
                     </div>
                   </div>
 
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="rounded-2xl bg-slate-900 p-5 text-white">
+                    <div className="rounded-2xl bg-slate-800/60 p-5">
                       <div className="mb-3 flex items-center gap-2">
-                        <FileText className="h-5 w-5 text-cyan-300" />
-                        <span className="font-medium">Answer Summary</span>
+                        <FileText className="h-5 w-5 text-cyan-400" />
+                        <span className="font-medium text-white">Answer Summary</span>
                       </div>
-                      <p className="text-sm text-slate-300">Answered Questions</p>
-                      <p className="mt-1 text-2xl font-semibold">{phase1Result.answeredQuestions}</p>
-                      <p className="mt-3 text-sm text-slate-300">Total Questions</p>
-                      <p className="mt-1 text-xl font-semibold">{phase1Result.totalQuestions}</p>
+                      <p className="text-sm text-slate-400">Answered Questions</p>
+                      <p className="mt-1 text-2xl font-semibold text-white">{phase1Result.answeredQuestions}</p>
+                      <p className="mt-3 text-sm text-slate-400">Total Questions</p>
+                      <p className="mt-1 text-xl font-semibold text-white">{phase1Result.totalQuestions}</p>
                     </div>
 
-                    <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+                    <div className="rounded-2xl bg-slate-800/60 p-5">
                       <div className="mb-3 flex items-center gap-2">
-                        <Shield className="h-5 w-5 text-indigo-600" />
-                        <span className="font-medium text-slate-900">Proctoring Summary</span>
+                        <Shield className="h-5 w-5 text-indigo-400" />
+                        <span className="font-medium text-white">Proctoring Summary</span>
                       </div>
-                      <p className="text-sm text-slate-500">Violations Recorded</p>
-                      <p className="mt-1 text-2xl font-semibold text-slate-900">{phase1Result.violations.length}</p>
-                      <p className="mt-3 text-sm text-slate-500">
+                      <p className="text-sm text-slate-400">Violations Recorded</p>
+                      <p className="mt-1 text-2xl font-semibold text-white">{phase1Result.violations.length}</p>
+                      <p className="mt-3 text-sm text-slate-400">
                         {phase1Result.violations.length === 0
                           ? 'No violations detected during Phase 1.'
                           : 'Phase 2 will continue with live proctoring enabled.'}
@@ -199,41 +199,41 @@ export function TestPhase2() {
                   </div>
                 </>
               ) : (
-                <div className="rounded-2xl bg-white p-6 text-center shadow-sm">
-                  <p className="text-lg font-semibold text-slate-900">Phase 1 result not found</p>
-                  <p className="mt-2 text-sm text-slate-500">
+                <div className="rounded-2xl bg-slate-800/60 p-6 text-center">
+                  <p className="text-lg font-semibold text-white">Phase 1 result not found</p>
+                  <p className="mt-2 text-sm text-slate-400">
                     We could not load the saved MCQ result, but you can still continue to Phase 2.
                   </p>
                 </div>
               )}
             </section>
 
-            <section className="rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 p-6" style={{ color: '#0f172a' }}>
+            <section className="rounded-2xl border border-blue-500/30 bg-blue-950/40 p-6">
               <div className="mb-4 flex items-center gap-3">
-                <MonitorPlay className="h-6 w-6 text-blue-600" />
+                <MonitorPlay className="h-6 w-6 text-blue-400" />
                 <div>
-                  <h2 className="text-xl font-semibold text-slate-900">Phase 2 Test Start</h2>
-                  <p className="text-sm text-slate-500">Technical assessment and proctored evaluation</p>
+                  <h2 className="text-xl font-semibold text-blue-300">Phase 2 Test Start</h2>
+                  <p className="text-sm text-slate-400">Technical assessment and proctored evaluation</p>
                 </div>
               </div>
 
               <div className="mb-6 space-y-3">
-                <div className="rounded-xl bg-white p-4 shadow-sm" style={{ color: '#0f172a' }}>
+                <div className="rounded-xl bg-slate-800/60 p-4">
                   <div className="flex items-center gap-3">
-                    <Clock className="h-5 w-5 text-blue-600" />
+                    <Clock className="h-5 w-5 text-blue-400" />
                     <div>
-                      <p className="font-medium">Next phase</p>
-                      <p className="text-sm" style={{ color: '#64748b' }}>Coding, technical, and problem-solving questions</p>
+                      <p className="font-medium text-white">Next phase</p>
+                      <p className="text-sm text-slate-400">Coding, technical, and problem-solving questions</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="rounded-xl bg-white p-4 shadow-sm" style={{ color: '#0f172a' }}>
+                <div className="rounded-xl bg-slate-800/60 p-4">
                   <div className="flex items-center gap-3">
-                    <Award className="h-5 w-5 text-violet-600" />
+                    <Award className="h-5 w-5 text-violet-400" />
                     <div>
-                      <p className="font-medium">Live evaluation</p>
-                      <p className="text-sm" style={{ color: '#64748b' }}>Your camera and screen checks continue in Phase 2</p>
+                      <p className="font-medium text-white">Live evaluation</p>
+                      <p className="text-sm text-slate-400">Your camera and screen checks continue in Phase 2</p>
                     </div>
                   </div>
                 </div>
@@ -249,8 +249,7 @@ export function TestPhase2() {
 
               <button
                 onClick={() => navigate('/')}
-                className="mt-3 w-full rounded-xl border border-slate-300 px-6 py-3 text-sm font-medium transition hover:bg-slate-50"
-                style={{ color: '#334155' }}
+                className="mt-3 w-full rounded-xl border border-slate-600 px-6 py-3 text-sm font-medium text-slate-300 transition hover:bg-slate-800"
               >
                 Go to Dashboard
               </button>
