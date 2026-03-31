@@ -397,7 +397,7 @@ export default function ProctoringRules() {
             <div className="relative flex-shrink-0">
               <div className="p-6 bg-white rounded-2xl shadow-lg">
                 <QRCodeSVG
-                  value="https://github.com/vandit-cloud/talent-league/releases/latest/download/TalentLeague.apk"
+                  value="https://github.com/vandit-cloud/TalentLeague-apk/releases/latest/download/TalentLeague.apk"
                   size={200}
                   level="M"
                   includeMargin={true}
