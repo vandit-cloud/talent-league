@@ -14,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { FaceMesh } from "@mediapipe/face_mesh";
+import { getApiUrl } from "../lib/api/base";
 import * as cocoSsd from "@tensorflow-models/coco-ssd";
 import "@tensorflow/tfjs";
 
@@ -594,7 +595,7 @@ export default function MonitoringCamera() {
 
     const checkPhase1Completion = async () => {
       try {
-        const response = await fetch(`/api/mcq/result/${activeToken}`);
+        const response = await fetch(getApiUrl(`/mcq/result/${activeToken}`));
         if (!response.ok) {
           return;
         }
