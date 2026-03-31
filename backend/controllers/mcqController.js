@@ -2,7 +2,7 @@ const MCQTest = require('../models/MCQTest');
 const Job = require('../models/Job');
 const AssessmentTemplate = require('../models/AssessmentTemplate');
 const crypto = require('crypto');
-const { Resend } = require('resend');
+const Brevo = require('@getbrevo/brevo');
 const fs = require('fs');
 const path = require('path');
 const Groq = require('groq-sdk');
@@ -388,28 +388,25 @@ const sendTestEmail = async (email, name, appRedirectLink, testLink, duration) =
     `;
 
     try {
-        const resendApiKey = process.env.RESEND_API_KEY;
-        if (!resendApiKey) {
-            console.error('RESEND_API_KEY not set');
+        const brevoApiKey = process.env.BREVO_API_KEY;
+        if (!brevoApiKey) {
+            console.error('BREVO_API_KEY not set');
             return { emailSent: false, error: 'Email service not configured' };
         }
 
-        const resend = new Resend(resendApiKey);
-        console.log(`Sending email to ${email} via Resend...`);
+        const apiInstance = new Brevo.TransactionalEmailsApi();
+        apiInstance.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, brevoApiKey);
 
-        const { data, error } = await resend.emails.send({
-            from: 'TalentLeague <onboarding@resend.dev>',
-            to: email,
-            subject: 'Your MCQ Test Link - TalentLeague',
-            html
-        });
+        console.log(`Sending email to ${email} via Brevo...`);
 
-        if (error) {
-            console.error('RESEND ERROR:', error);
-            return { emailSent: false, error: error.message };
-        }
+        const sendSmtpEmail = new Brevo.SendSmtpEmail();
+        sendSmtpEmail.sender = { name: 'TalentLeague', email: 'noreply@talentleague.dev' };
+        sendSmtpEmail.to = [{ email }];
+        sendSmtpEmail.subject = 'Your MCQ Test Link - TalentLeague';
+        sendSmtpEmail.htmlContent = html;
 
-        console.log('Email sent successfully:', data?.id);
+        const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
+        console.log('Email sent successfully:', result?.body?.messageId);
         return { emailSent: true };
     } catch (err) {
         console.error('EMAIL SEND ERROR:', err.message);
