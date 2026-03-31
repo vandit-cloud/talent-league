@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-  Shield, 
-  Camera, 
-  Eye, 
-  Users, 
-  Mic, 
-  Monitor, 
-  Lock, 
-  AlertTriangle, 
+import {
+  Shield,
+  Camera,
+  Eye,
+  Users,
+  Mic,
+  Monitor,
+  Lock,
+  AlertTriangle,
   CheckCircle,
   ArrowRight,
   Clock,
@@ -17,8 +17,11 @@ import {
   Focus,
   MousePointerClick,
   Loader,
-  Mail
+  Mail,
+  Smartphone,
+  Download
 } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import axios from "axios";
 import { getAssessmentById } from "../data/assessmentCatalog";
 import { useAuth } from "../context/AuthContext";
@@ -386,6 +389,52 @@ export default function ProctoringRules() {
           <span>Exam Duration: <strong>30 Minutes</strong></span>
           <span className="mx-2">|</span>
           <span>Questions: <strong>25 MCQs</strong></span>
+        </div>
+
+        {/* Mobile App QR Code */}
+        <div className="exam-flow-card rounded-2xl p-8 mb-8">
+          <div className="flex flex-col md:flex-row items-center gap-8">
+            <div className="relative p-4 bg-white rounded-2xl shadow-lg">
+              <QRCodeSVG
+                value="https://github.com/vandit-cloud/talent-league/releases/latest/download/TalentLeague.apk"
+                size={180}
+                level="H"
+                includeMargin={false}
+                bgColor="#ffffff"
+                fgColor="#1e1b4b"
+              />
+              <div className="absolute -bottom-3 -right-3 w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-md">
+                <Smartphone className="w-5 h-5 text-white" />
+              </div>
+            </div>
+            <div className="flex-1 text-center md:text-left">
+              <div className="flex items-center gap-2 justify-center md:justify-start mb-2">
+                <Download className="w-5 h-5 text-indigo-400" />
+                <h3 className="text-xl font-bold exam-flow-title">Install TalentLeague App</h3>
+              </div>
+              <p className="exam-flow-muted text-sm leading-relaxed mb-3">
+                Phase 1 (MCQ Test) will be taken on your <strong>mobile phone</strong>.
+                Scan the QR code below with your phone camera to download and install the TalentLeague app.
+              </p>
+              <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-indigo-500/20 text-indigo-300">
+                  <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full"></span>
+                  Step 1: Scan QR code
+                </span>
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-purple-500/20 text-purple-300">
+                  <span className="w-1.5 h-1.5 bg-purple-400 rounded-full"></span>
+                  Step 2: Install APK
+                </span>
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/20 text-emerald-300">
+                  <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span>
+                  Step 3: Open app & login
+                </span>
+              </div>
+              <p className="exam-flow-muted text-xs mt-3 opacity-70">
+                Android only. You may need to enable "Install from unknown sources" in your phone settings.
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Start Button */}
