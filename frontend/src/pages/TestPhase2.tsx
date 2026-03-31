@@ -106,7 +106,7 @@ export function TestPhase2() {
     return () => {
       isMounted = false;
     };
-  }, [tokenFromQuery, backendFromQuery]);
+  }, [tokenFromQuery]);
 
   const startPhase2 = () => {
     const nextSearch = tokenFromQuery
