@@ -350,8 +350,8 @@ const sendTestEmail = async (email, name, appRedirectLink, testLink, duration) =
             <p style="color: #d1d5db; font-size: 16px; line-height: 1.6;">Your MCQ assessment is ready! Click the button below to start your test.</p>
 
             <div style="background: #2d2d2d; padding: 20px; border-radius: 8px; margin: 25px 0;">
-                <p style="color: #d1d5db; margin: 8px 0;"><strong>📊 Test Duration:</strong> ${duration} minutes</p>
-                <p style="color: #d1d5db; margin: 8px 0;"><strong>📝 Instructions:</strong></p>
+                <p style="color: #d1d5db; margin: 8px 0;"><strong>Test Duration:</strong> ${duration} minutes</p>
+                <p style="color: #d1d5db; margin: 8px 0;"><strong>Instructions:</strong></p>
                 <ul style="color: #d1d5db; margin: 8px 0; padding-left: 20px;">
                     <li>Ensure you have a stable internet connection</li>
                     <li>Answer all questions to the best of your ability</li>
@@ -360,31 +360,22 @@ const sendTestEmail = async (email, name, appRedirectLink, testLink, duration) =
                 </ul>
             </div>
 
-            <!-- Single Button: Opens redirect page that launches app -->
-            <a href="${appRedirectLink}"
+            <a href="${testLink}"
                style="display: block; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
                       color: white; padding: 20px 50px; text-decoration: none; border-radius: 12px;
                       font-weight: bold; text-align: center; margin: 30px 0; font-size: 20px;
                       box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);">
-                📱 Continue to App
-            </a>
-
-            <a href="${testLink}"
-               style="display: block; background: #2d2d2d; color: #d1d5db; padding: 16px 40px; text-decoration: none;
-                      border-radius: 12px; font-weight: bold; text-align: center; margin: -10px 0 30px; font-size: 16px;
-                      border: 1px solid #4b5563;">
-                Continue in Browser
+                Start Your Test
             </a>
 
             <div style="background: #2d2d2d; padding: 15px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #6366f1;">
                 <p style="color: #9ca3af; font-size: 13px; margin: 0; line-height: 1.5;">
-                    <strong style="color: #b794f6;">📲 Note:</strong> Make sure the TalentLeague app is installed on your Android device.
-                    The button above will open the test directly in the app.
+                    <strong style="color: #b794f6;">Tip:</strong> You can take this test on your phone or computer. Just click the button above — it works on any device with a browser.
                 </p>
             </div>
 
             <p style="text-align: center; color: #f59e0b; font-weight: bold; margin-top: 30px; font-size: 14px;">
-                ⚠️ This link is unique to you. Do not share it with anyone.
+                This link is unique to you. Do not share it with anyone.
             </p>
 
             <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #2d2d2d; text-align: center;">
