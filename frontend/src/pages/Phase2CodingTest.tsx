@@ -68,6 +68,8 @@ interface Phase2Question {
 }
 
 const getBackendBaseUrl = () => {
+  const configured = import.meta.env.VITE_API_BASE_URL;
+  if (configured) return configured.replace(/\/api\/?$/, '');
   return window.location.origin.replace(/:5173$/, ':5000');
 };
 
