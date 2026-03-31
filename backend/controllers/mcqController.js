@@ -443,16 +443,8 @@ const sendTestEmail = async (email, name, appRedirectLink, testLink, duration) =
 
         return { emailSent: sentSuccessfully, previewUrl };
     } catch (err) {
-        // As a last resort in dev, write the email content to a file
-        try {
-            const outPath = path.join(__dirname, '..', 'out.txt');
-            const entry = `\n===== ${new Date().toISOString()} =====\nTO: ${email}\nSUBJECT: Your MCQ Test Link - TalentLeague\nAPP LINK: ${appRedirectLink}\nBROWSER LINK: ${testLink}\nHTML:\n${html}\n`;
-            fs.appendFileSync(outPath, entry, 'utf8');
-            console.warn('Email send failed; wrote contents to', outPath);
-            return { emailSent: false, previewUrl: `file://${outPath}` };
-        } catch {
-            throw err;
-        }
+        console.error('EMAIL SEND ERROR:', err.message, err.code, err.responseCode);
+        return { emailSent: false, error: err.message };
     }
 };
 
