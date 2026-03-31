@@ -98,6 +98,14 @@ const TestPage: React.FC<TestPageProps> = ({ mcqToken, backendUrl, frontendUrl }
   const fetchMCQTest = async (token: string) => {
     setIsLoadingTest(true);
     setError(null);
+    setTestStarted(false);
+    setTestCompleted(false);
+    setTestResult(null);
+    setMcqQuestions([]);
+    setAnswers([]);
+    setCurrentQuestionIndex(0);
+    setTimeRemaining(0);
+    setCandidateName('');
 
     const resolvedBackendUrl = getBackendUrl(backendUrl);
     const resolvedFrontendUrl = getFrontendUrl(frontendUrl);
