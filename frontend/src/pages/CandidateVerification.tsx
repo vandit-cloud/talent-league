@@ -535,15 +535,13 @@ export default function CandidateVerification() {
         setTimeout(() => {
           if (!cameraReady && videoRef.current) {
             if (videoRef.current.readyState >= 2 && !videoRef.current.paused) {
-              console.log("Camera ready via timeout fallback");
               setCameraReady(true);
               setCameraError(null);
             } else if (videoRef.current.readyState >= 2) {
-              // Try playing one more time
               playVideo();
             }
           }
-        }, 1500);
+        }, 800);
       }
       
       setCameraError(null);
@@ -631,10 +629,10 @@ export default function CandidateVerification() {
         });
         
         fm.setOptions({
-          maxNumFaces: 3,
-          refineLandmarks: true,
-          minDetectionConfidence: 0.3,
-          minTrackingConfidence: 0.3,
+          maxNumFaces: 2,
+          refineLandmarks: false,
+          minDetectionConfidence: 0.4,
+          minTrackingConfidence: 0.4,
         });
         
         fm.onResults((results) => {
@@ -643,7 +641,7 @@ export default function CandidateVerification() {
           const faceCount = Math.max(meshFaceCount, detectedFaceCountRef.current);
           const hasFace = faceCount > 0;
           
-          console.log(`Face detection: ${faceCount} face(s) detected`);
+          // Face detection logging removed for performance
           
           if (hasFace && faceCount === 1 && results.multiFaceLandmarks?.length) {
             const lm = results.multiFaceLandmarks[0];
@@ -669,7 +667,7 @@ export default function CandidateVerification() {
               stableViewSinceRef.current = null;
             }
             
-            console.log(`Face detected - Eyes: ${eyesOpen ? 'Open' : 'Closed'}, Position: ${position}, Clear: ${faceVisible}`);
+            // Per-frame logging removed for performance
             
             setFaceQuality({
               isVisible: true,
@@ -690,16 +688,16 @@ export default function CandidateVerification() {
             if (lastEyesOpenRef.current && !currentEyesOpen) {
               // Eyes just closed - start blink
               blinkStartTimeRef.current = Date.now();
-              console.log("Blink started");
+              // blink started
             } else if (!lastEyesOpenRef.current && currentEyesOpen && blinkStartTimeRef.current) {
               // Eyes just opened - complete blink
               const blinkDuration = Date.now() - blinkStartTimeRef.current;
-              console.log(`Blink ended - Duration: ${blinkDuration}ms`);
+              // blink ended
               if (blinkDuration > 100 && blinkDuration < 800) {
                 // Valid blink (100-800ms)
                 setAiAnalysis(prev => {
                   const newBlinkCount = prev.blinkCount + 1;
-                  console.log(`Valid blink detected! Count: ${newBlinkCount}/${CONFIG.LIVENESS_BLINK_COUNT}`);
+                  // valid blink counted
                   return {
                     ...prev,
                     blinkCount: newBlinkCount,
@@ -832,8 +830,8 @@ export default function CandidateVerification() {
       }
     };
     
-    // Delay initialization to ensure DOM is ready
-    const t = setTimeout(initFaceMesh, 500);
+    // Start initialization immediately
+    const t = setTimeout(initFaceMesh, 0);
 
     return () => {
       cancelled = true;
@@ -856,12 +854,13 @@ export default function CandidateVerification() {
     
     let isRunning = true;
     let lastProcessTime = 0;
-    const PROCESS_INTERVAL = 150; // Process every 150ms for smooth real-time detection
-    const FACE_COUNT_INTERVAL = 250;
-    
+    let animFrameId: number;
+    const PROCESS_INTERVAL = 100; // Process every 100ms for faster detection
+    const FACE_COUNT_INTERVAL = 200;
+
     const detectFace = async () => {
       if (!isRunning) return;
-      
+
       const now = Date.now();
       if (
         videoRef.current &&
@@ -891,16 +890,17 @@ export default function CandidateVerification() {
           lastProcessTime = now;
         }
       }
-      
-      // Continue loop
-      setTimeout(detectFace, 50);
+
+      // Continue loop using requestAnimationFrame for better performance
+      animFrameId = requestAnimationFrame(detectFace);
     };
-    
+
     // Start detection loop
     detectFace();
-    
+
     return () => {
       isRunning = false;
+      cancelAnimationFrame(animFrameId);
     };
   }, [cameraReady]);
 
