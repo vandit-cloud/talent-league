@@ -398,7 +398,7 @@ const sendTestEmail = async (email, name, appRedirectLink, testLink, duration) =
         console.log(`Sending email to ${email} via Brevo...`);
 
         const result = await client.transactionalEmails.sendTransacEmail({
-            sender: { name: 'TalentLeague', email: 'noreply@talentleague.dev' },
+            sender: { name: 'TalentLeague', email: 'vvdoshi20@gmail.com' },
             to: [{ email }],
             subject: 'Your MCQ Test Link - TalentLeague',
             htmlContent: html
