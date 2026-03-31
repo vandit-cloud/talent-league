@@ -166,12 +166,9 @@
             }
 
             if (!frontendOrigin) {
-                title.textContent = 'Link Setup Incomplete';
-                message.textContent = 'This test link is missing the frontend tunnel URL. Generate a fresh email after starting both tunnels.';
-                if (browserLink !== '#') {
-                    browserBtn.classList.remove('hidden');
-                }
-                return;
+                // Use production frontend as default
+                const prodFrontend = 'https://talent-league.vercel.app';
+                deepLinkParams.set('frontend', prodFrontend);
             }
 
             title.textContent = 'Opening TalentLeague App...';

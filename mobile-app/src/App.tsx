@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { App as CapacitorApp } from '@capacitor/app';
+import { useAuth } from './context/AuthContext';
 import BottomNav from './components/BottomNav';
 import HomePage from './pages/HomePage';
 import JobsPage from './pages/JobsPage';
 import ProfilePage from './pages/ProfilePage';
 import TestPage from './pages/TestPage';
+import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
 import './App.css';
 
 interface DeepLinkConfig {
@@ -32,7 +35,10 @@ const parseDeepLinkConfig = (url: string): DeepLinkConfig => {
 };
 
 const App: React.FC = () => {
+  const { isAuthenticated } = useAuth();
+
   const [activeTab, setActiveTab] = useState('home');
+  const [authScreen, setAuthScreen] = useState<'login' | 'signup'>('login');
   const [mcqToken, setMcqToken] = useState<string | null>(null);
   const [mcqBackendUrl, setMcqBackendUrl] = useState<string | null>(null);
   const [mcqFrontendUrl, setMcqFrontendUrl] = useState<string | null>(null);
@@ -41,7 +47,7 @@ const App: React.FC = () => {
     const handleDeepLink = (url: string) => {
       console.log('Deep link received:', url);
 
-      const tokenMatch = url.match(/(?:talentleague:\/\/test\/|\/mcq-test\/|\/test\/)([^/?#]+)/i);
+      const tokenMatch = url.match(/(?:talentleague:\/\/test\/|\/mcq-test\/|\/test\/|\/open-app\/)([^/?#]+)/i);
       const token = tokenMatch?.[1] ?? null;
       const { backendUrl, frontendUrl } = parseDeepLinkConfig(url);
 
@@ -90,6 +96,19 @@ const App: React.FC = () => {
     };
   }, []);
 
+  // Show auth screens when not authenticated
+  if (!isAuthenticated) {
+    if (authScreen === 'signup') {
+      return (
+        <SignupPage onNavigateToLogin={() => setAuthScreen('login')} />
+      );
+    }
+    return (
+      <LoginPage onNavigateToSignup={() => setAuthScreen('signup')} />
+    );
+  }
+
+  // Authenticated - show main app
   const renderContent = () => {
     switch (activeTab) {
       case 'home':

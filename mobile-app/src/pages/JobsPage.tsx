@@ -1,8 +1,18 @@
-import React from 'react';
-import { Briefcase, MapPin, DollarSign, Clock, Building } from 'lucide-react';
+import React, { useState } from 'react';
+import { MapPin, DollarSign, Clock, Search, Bookmark, Building2, Sparkles } from 'lucide-react';
 import './JobsPage.css';
 
 const JobsPage: React.FC = () => {
+  const [activeFilter, setActiveFilter] = useState('all');
+
+  const filters = [
+    { id: 'all', label: 'All Jobs' },
+    { id: 'remote', label: 'Remote' },
+    { id: 'fulltime', label: 'Full-time' },
+    { id: 'contract', label: 'Contract' },
+    { id: 'parttime', label: 'Part-time' },
+  ];
+
   const jobs = [
     {
       id: 1,
@@ -11,8 +21,10 @@ const JobsPage: React.FC = () => {
       location: 'San Francisco, CA',
       salary: '$120k - $160k',
       type: 'Full-time',
-      posted: '2 days ago',
-      logo: '🏢'
+      posted: '2d ago',
+      match: 92,
+      logo: '🏢',
+      hot: true,
     },
     {
       id: 2,
@@ -21,8 +33,10 @@ const JobsPage: React.FC = () => {
       location: 'Remote',
       salary: '$90k - $130k',
       type: 'Full-time',
-      posted: '3 days ago',
-      logo: '🚀'
+      posted: '3d ago',
+      match: 88,
+      logo: '🚀',
+      hot: false,
     },
     {
       id: 3,
@@ -31,8 +45,10 @@ const JobsPage: React.FC = () => {
       location: 'New York, NY',
       salary: '$110k - $150k',
       type: 'Full-time',
-      posted: '1 week ago',
-      logo: '💡'
+      posted: '1w ago',
+      match: 76,
+      logo: '💡',
+      hot: false,
     },
     {
       id: 4,
@@ -41,62 +57,112 @@ const JobsPage: React.FC = () => {
       location: 'Austin, TX',
       salary: '$85k - $115k',
       type: 'Contract',
-      posted: '2 weeks ago',
-      logo: '🎨'
-    }
+      posted: '2w ago',
+      match: 70,
+      logo: '🎨',
+      hot: false,
+    },
   ];
+
+  const getMatchColor = (match: number) => {
+    if (match >= 85) return 'match-high';
+    if (match >= 70) return 'match-mid';
+    return 'match-low';
+  };
 
   return (
     <div className="jobs-page">
+      {/* Header */}
       <div className="jobs-header">
-        <h1>Available Jobs</h1>
-        <p>Find your next opportunity</p>
+        <div className="jobs-header-top">
+          <div>
+            <h1>Find Jobs</h1>
+            <p className="jobs-count">24 matches for you</p>
+          </div>
+          <button className="header-icon-btn">
+            <Bookmark size={20} />
+          </button>
+        </div>
+
+        {/* Search Bar */}
+        <div className="search-bar">
+          <Search size={18} className="search-icon" />
+          <input
+            type="text"
+            placeholder="Search jobs, companies..."
+            className="search-input"
+          />
+        </div>
       </div>
-      
-      <div className="search-bar">
-        <input 
-          type="text" 
-          placeholder="Search jobs, companies, or keywords..."
-          className="search-input"
-        />
-        <button className="search-button">Search</button>
+
+      {/* Filter Chips */}
+      <div className="filter-scroll">
+        <div className="filter-chips">
+          {filters.map((f) => (
+            <button
+              key={f.id}
+              className={`filter-chip ${activeFilter === f.id ? 'active' : ''}`}
+              onClick={() => setActiveFilter(f.id)}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
       </div>
-      
-      <div className="filter-tabs">
-        <button className="filter-tab active">All Jobs</button>
-        <button className="filter-tab">Remote</button>
-        <button className="filter-tab">Full-time</button>
-        <button className="filter-tab">Part-time</button>
-      </div>
-      
+
+      {/* Job Cards */}
       <div className="jobs-list">
-        {jobs.map((job) => (
-          <div key={job.id} className="job-card">
-            <div className="job-header">
+        {jobs.map((job, index) => (
+          <div
+            key={job.id}
+            className="job-card"
+            style={{ animationDelay: `${index * 0.08}s` }}
+          >
+            {job.hot && (
+              <div className="job-hot-badge">
+                <Sparkles size={10} />
+                Hot
+              </div>
+            )}
+            <div className="job-card-top">
               <div className="company-logo">{job.logo}</div>
               <div className="job-info">
-                <h3>{job.title}</h3>
-                <p className="company-name">{job.company}</p>
-                <div className="job-meta">
-                  <span className="meta-item">
-                    <MapPin size={14} />
-                    {job.location}
-                  </span>
-                  <span className="meta-item">
-                    <DollarSign size={14} />
-                    {job.salary}
-                  </span>
-                  <span className="meta-item">
-                    <Clock size={14} />
-                    {job.posted}
-                  </span>
+                <h3 className="job-title">{job.title}</h3>
+                <div className="company-row">
+                  <Building2 size={13} />
+                  <span>{job.company}</span>
                 </div>
               </div>
+              <button className="bookmark-btn">
+                <Bookmark size={16} />
+              </button>
             </div>
-            <div className="job-footer">
-              <span className="job-type">{job.type}</span>
-              <button className="apply-button">Apply Now</button>
+
+            <div className="job-tags">
+              <span className="job-tag tag-location">
+                <MapPin size={12} />
+                {job.location}
+              </span>
+              <span className="job-tag tag-salary">
+                <DollarSign size={12} />
+                {job.salary}
+              </span>
             </div>
+
+            <div className="job-card-footer">
+              <div className="job-footer-left">
+                <span className="job-type-badge">{job.type}</span>
+                <span className="job-posted">
+                  <Clock size={11} />
+                  {job.posted}
+                </span>
+              </div>
+              <div className={`match-badge ${getMatchColor(job.match)}`}>
+                {job.match}% Match
+              </div>
+            </div>
+
+            <button className="apply-btn">Apply Now</button>
           </div>
         ))}
       </div>
