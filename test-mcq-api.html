@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test MCQ API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            display: block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+        }
+        .result {
+            background: #f0f9ff;
+            border: 1px solid #e0e7ff;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .success {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+        }
+        .error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+        }
+        pre {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Test MCQ Backend API</h1>
+        <p>This page tests the mobile app's ability to fetch questions from the backend.</p>
+        
+        <div class="result">
+            <h3>📋 What's Working:</h3>
+            <ul>
+                <li>✅ Email button shows "Continue to App"</li>
+                <li>✅ Redirect page with proper popup</li>
+                <li>✅ Deep link handling in mobile app</li>
+                <li>✅ MCQTest component created</li>
+                <li>✅ API endpoint: /api/mcq/questions/:token</li>
+                <li>✅ React Router DOM added</li>
+            </ul>
+        </div>
+
+        <button class="test-button" onclick="testAPI()">
+            🧪 Test MCQ API
+        </button>
+
+        <div id="result" class="result" style="display: none;">
+            <h3 id="result-title">API Response</h3>
+            <pre id="result-content"></pre>
+        </div>
+    </div>
+
+    <script>
+        async function testAPI() {
+            const resultDiv = document.getElementById('result');
+            const resultTitle = document.getElementById('result-title');
+            const resultContent = document.getElementById('result-content');
+            
+            try {
+                // Test with a sample token
+                const testToken = 'test1234567890';
+                const apiUrl = `http://localhost:5000/api/mcq/questions/${testToken}`;
+                
+                console.log('🔍 Testing API:', apiUrl);
+                
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                
+                console.log('📊 API Response:', data);
+                
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'result success';
+                resultTitle.textContent = '✅ API Response (Success)';
+                resultContent.textContent = JSON.stringify(data, null, 2);
+                
+            } catch (error) {
+                console.error('❌ API Error:', error);
+                
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'result error';
+                resultTitle.textContent = '❌ API Error';
+                resultContent.textContent = error.message;
+            }
+        }
+    </script>
+</body>
+</html>

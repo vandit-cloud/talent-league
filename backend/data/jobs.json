@@ -1,0 +1,325 @@
+[
+  {
+    "_id": "job_1",
+    "title": "Frontend Developer",
+    "company": "TechNova Solutions",
+    "department": "Engineering",
+    "location": "Bangalore, India",
+    "type": "full-time",
+    "experience": "mid",
+    "salary": {
+      "min": 600000,
+      "max": 1200000,
+      "currency": "INR"
+    },
+    "description": "Build and maintain responsive web applications using React and modern JavaScript. Work closely with designers and backend engineers to deliver seamless user experiences.",
+    "requirements": [
+      "React",
+      "JavaScript",
+      "TypeScript",
+      "HTML/CSS",
+      "REST APIs",
+      "Git"
+    ],
+    "status": "active",
+    "applicants": 42,
+    "recruiterId": "offline_recruiter",
+    "createdAt": "2026-03-30T06:29:15.361Z"
+  },
+  {
+    "_id": "job_2",
+    "title": "Backend Developer",
+    "company": "CloudStack India",
+    "department": "Engineering",
+    "location": "Hyderabad, India",
+    "type": "full-time",
+    "experience": "mid",
+    "salary": {
+      "min": 800000,
+      "max": 1500000,
+      "currency": "INR"
+    },
+    "description": "Design and develop scalable backend services and APIs. Manage database schemas, optimize queries, and ensure system reliability.",
+    "requirements": [
+      "Node.js",
+      "Express",
+      "MongoDB",
+      "PostgreSQL",
+      "Docker",
+      "AWS"
+    ],
+    "status": "active",
+    "applicants": 38,
+    "recruiterId": "offline_recruiter",
+    "createdAt": "2026-03-29T06:29:15.362Z"
+  },
+  {
+    "_id": "job_3",
+    "title": "Data Science Intern",
+    "company": "AnalytiQ Labs",
+    "department": "Data Science",
+    "location": "Remote",
+    "type": "internship",
+    "experience": "entry",
+    "salary": {
+      "min": 180000,
+      "max": 300000,
+      "currency": "INR"
+    },
+    "description": "Assist the data science team in building ML models, data cleaning, and generating insights from large datasets. Great learning opportunity for students.",
+    "requirements": [
+      "Python",
+      "Pandas",
+      "Machine Learning",
+      "SQL",
+      "Statistics"
+    ],
+    "status": "active",
+    "applicants": 120,
+    "recruiterId": "offline_recruiter",
+    "createdAt": "2026-03-31T06:29:15.362Z"
+  },
+  {
+    "_id": "job_4",
+    "title": "UI/UX Designer",
+    "company": "PixelCraft Studio",
+    "department": "Design",
+    "location": "Mumbai, India",
+    "type": "full-time",
+    "experience": "mid",
+    "salary": {
+      "min": 500000,
+      "max": 1000000,
+      "currency": "INR"
+    },
+    "description": "Create intuitive and visually appealing user interfaces for web and mobile applications. Conduct user research, wireframing, and prototyping.",
+    "requirements": [
+      "Figma",
+      "Adobe XD",
+      "User Research",
+      "Wireframing",
+      "Prototyping",
+      "Design Systems"
+    ],
+    "status": "active",
+    "applicants": 27,
+    "recruiterId": "offline_recruiter",
+    "createdAt": "2026-03-27T06:29:15.362Z"
+  },
+  {
+    "_id": "job_5",
+    "title": "Digital Marketing Executive",
+    "company": "GrowthBridge Media",
+    "department": "Marketing",
+    "location": "Delhi, India",
+    "type": "full-time",
+    "experience": "entry",
+    "salary": {
+      "min": 300000,
+      "max": 600000,
+      "currency": "INR"
+    },
+    "description": "Plan and execute digital marketing campaigns across social media, email, and paid channels. Track metrics and optimize for engagement and conversions.",
+    "requirements": [
+      "SEO",
+      "Google Ads",
+      "Social Media",
+      "Content Marketing",
+      "Analytics"
+    ],
+    "status": "active",
+    "applicants": 65,
+    "recruiterId": "offline_recruiter",
+    "createdAt": "2026-03-28T06:29:15.362Z"
+  },
+  {
+    "_id": "job_6",
+    "title": "Full Stack Developer",
+    "company": "InnovateTech",
+    "department": "Engineering",
+    "location": "Pune, India",
+    "type": "full-time",
+    "experience": "senior",
+    "salary": {
+      "min": 1500000,
+      "max": 2500000,
+      "currency": "INR"
+    },
+    "description": "Lead full stack development of enterprise web applications. Mentor junior developers, architect solutions, and drive technical decisions.",
+    "requirements": [
+      "React",
+      "Node.js",
+      "MongoDB",
+      "TypeScript",
+      "System Design",
+      "AWS",
+      "CI/CD"
+    ],
+    "status": "active",
+    "applicants": 18,
+    "recruiterId": "offline_recruiter",
+    "createdAt": "2026-03-31T06:29:15.362Z"
+  },
+  {
+    "_id": "job_7",
+    "title": "Content Writer",
+    "company": "WordSmith Digital",
+    "department": "Content",
+    "location": "Remote",
+    "type": "part-time",
+    "experience": "entry",
+    "salary": {
+      "min": 150000,
+      "max": 350000,
+      "currency": "INR"
+    },
+    "description": "Write engaging blog posts, articles, and marketing copy for tech companies. SEO-friendly content creation with research-backed insights.",
+    "requirements": [
+      "Content Writing",
+      "SEO Writing",
+      "Research",
+      "Blogging",
+      "Editing"
+    ],
+    "status": "active",
+    "applicants": 89,
+    "recruiterId": "offline_recruiter",
+    "createdAt": "2026-03-26T06:29:15.362Z"
+  },
+  {
+    "_id": "job_8",
+    "title": "DevOps Engineer",
+    "company": "ScaleUp Systems",
+    "department": "Engineering",
+    "location": "Bangalore, India",
+    "type": "full-time",
+    "experience": "senior",
+    "salary": {
+      "min": 1800000,
+      "max": 3000000,
+      "currency": "INR"
+    },
+    "description": "Build and maintain CI/CD pipelines, manage cloud infrastructure, and ensure high availability of production systems.",
+    "requirements": [
+      "AWS",
+      "Docker",
+      "Kubernetes",
+      "Terraform",
+      "Jenkins",
+      "Linux",
+      "Monitoring"
+    ],
+    "status": "active",
+    "applicants": 14,
+    "recruiterId": "offline_recruiter",
+    "createdAt": "2026-03-30T06:29:15.362Z"
+  },
+  {
+    "_id": "job_9",
+    "title": "Mobile App Developer",
+    "company": "AppCraft Technologies",
+    "department": "Engineering",
+    "location": "Chennai, India",
+    "type": "full-time",
+    "experience": "mid",
+    "salary": {
+      "min": 700000,
+      "max": 1400000,
+      "currency": "INR"
+    },
+    "description": "Develop cross-platform mobile applications using React Native. Integrate APIs, implement push notifications, and optimize app performance.",
+    "requirements": [
+      "React Native",
+      "JavaScript",
+      "iOS",
+      "Android",
+      "REST APIs",
+      "Firebase"
+    ],
+    "status": "active",
+    "applicants": 33,
+    "recruiterId": "offline_recruiter",
+    "createdAt": "2026-03-29T06:29:15.362Z"
+  },
+  {
+    "_id": "job_10",
+    "title": "Accounting Associate",
+    "company": "FinEdge Consulting",
+    "department": "Accounting",
+    "location": "Noida, India",
+    "type": "full-time",
+    "experience": "entry",
+    "salary": {
+      "min": 300000,
+      "max": 500000,
+      "currency": "INR"
+    },
+    "description": "Handle accounts payable/receivable, prepare financial statements, assist with audits, and maintain accurate financial records.",
+    "requirements": [
+      "Accounting",
+      "Tally",
+      "Excel",
+      "GST",
+      "Financial Reporting",
+      "SAP"
+    ],
+    "status": "active",
+    "applicants": 51,
+    "recruiterId": "offline_recruiter",
+    "createdAt": "2026-03-25T06:29:15.362Z"
+  },
+  {
+    "_id": "job_11",
+    "title": "Machine Learning Engineer",
+    "company": "NeuralTech India",
+    "department": "Data Science",
+    "location": "Hyderabad, India",
+    "type": "full-time",
+    "experience": "senior",
+    "salary": {
+      "min": 2000000,
+      "max": 3500000,
+      "currency": "INR"
+    },
+    "description": "Design and deploy production ML models. Work on NLP, computer vision, and recommendation systems at scale.",
+    "requirements": [
+      "Python",
+      "TensorFlow",
+      "PyTorch",
+      "NLP",
+      "Computer Vision",
+      "MLOps",
+      "Deep Learning"
+    ],
+    "status": "active",
+    "applicants": 22,
+    "recruiterId": "offline_recruiter",
+    "createdAt": "2026-03-31T06:29:15.362Z"
+  },
+  {
+    "_id": "job_12",
+    "title": "Customer Support Executive",
+    "company": "HelpDesk Pro",
+    "department": "Support",
+    "location": "Ahmedabad, India",
+    "type": "full-time",
+    "experience": "entry",
+    "salary": {
+      "min": 240000,
+      "max": 400000,
+      "currency": "INR"
+    },
+    "description": "Provide excellent customer support via chat, email, and phone. Resolve customer queries, troubleshoot issues, and maintain satisfaction scores.",
+    "requirements": [
+      "Communication",
+      "Problem Solving",
+      "Customer Service",
+      "English Fluency",
+      "CRM Tools"
+    ],
+    "status": "active",
+    "applicants": 95,
+    "recruiterId": "offline_recruiter",
+    "createdAt": "2026-04-01T06:29:15.362Z"
+  }
+]

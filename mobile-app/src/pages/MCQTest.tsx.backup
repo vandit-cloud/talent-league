@@ -1,0 +1,271 @@
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Clock, CheckCircle, AlertCircle, Send } from 'lucide-react';
+import './MCQTest.css';
+
+interface Question {
+  question: string;
+  options: string[];
+  correct: number;
+  skill: string;
+}
+
+interface TestData {
+  questions: Question[];
+  duration: number;
+  title: string;
+  description: string;
+}
+
+const MCQTest: React.FC = () => {
+  const { token } = useParams<{ token: string }>();
+  const navigate = useNavigate();
+  
+  const [testData, setTestData] = useState<TestData | null>(null);
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [selectedAnswers, setSelectedAnswers] = useState<number[]>([]);
+  const [timeRemaining, setTimeRemaining] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
+  // Fetch test data from backend
+  useEffect(() => {
+    const fetchTestData = async () => {
+      try {
+        console.log('📋 Fetching test data for token:', token);
+        
+        const response = await fetch(`http://192.168.1.16:5000/api/mcq/questions/${token}`);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('📊 Test data received:', data);
+        
+        if (data.success) {
+          setTestData(data.data);
+          setTimeRemaining(data.data.duration * 60); // Convert minutes to seconds
+          setSelectedAnswers(new Array(data.data.questions.length).fill(-1));
+        } else {
+          throw new Error(data.message || 'Failed to load test data');
+        }
+      } catch (err) {
+        console.error('❌ Error fetching test data:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load test data');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (token) {
+      fetchTestData();
+    } else {
+      setError('No test token provided');
+      setIsLoading(false);
+    }
+  }, [token]);
+
+  // Timer effect
+  useEffect(() => {
+    if (timeRemaining > 0 && !isSubmitted) {
+      const timer = setTimeout(() => {
+        setTimeRemaining(prev => prev - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else if (timeRemaining === 0 && !isSubmitted) {
+      handleSubmit();
+    }
+  }, [timeRemaining, isSubmitted]);
+
+  const handleAnswerSelect = (questionIndex: number, answerIndex: number) => {
+    const newAnswers = [...selectedAnswers];
+    newAnswers[questionIndex] = answerIndex;
+    setSelectedAnswers(newAnswers);
+  };
+
+  const handleSubmit = async () => {
+    if (!testData) return;
+    
+    setIsSubmitted(true);
+    
+    try {
+      console.log('📤 Submitting test answers...');
+      
+      const response = await fetch(`http://192.168.1.16:5000/api/mcq/submit/${token}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          answers: selectedAnswers,
+          timeSpent: (testData.duration * 60) - timeRemaining,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('📊 Test submission result:', result);
+
+      if (result.success) {
+        // Navigate to results page
+        navigate('/test-results', { 
+          state: { 
+            score: result.data.score,
+            total: testData.questions.length,
+            correct: result.data.correct,
+            timeSpent: (testData.duration * 60) - timeRemaining
+          }
+        });
+      } else {
+        throw new Error(result.message || 'Failed to submit test');
+      }
+    } catch (err) {
+      console.error('❌ Error submitting test:', err);
+      setError(err instanceof Error ? err.message : 'Failed to submit test');
+      setIsSubmitted(false);
+    }
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  if (isLoading) {
+    return (
+      <div className="mcq-test-loading">
+        <div className="loading-spinner"></div>
+        <p>Loading test questions...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="mcq-test-error">
+        <AlertCircle size={48} />
+        <h2>Test Error</h2>
+        <p>{error}</p>
+        <button onClick={() => window.location.reload()}>
+          🔄 Try Again
+        </button>
+      </div>
+    );
+  }
+
+  if (!testData) {
+    return (
+      <div className="mcq-test-error">
+        <AlertCircle size={48} />
+        <h2>Test Not Found</h2>
+        <p>The test link is invalid or has expired.</p>
+      </div>
+    );
+  }
+
+  const question = testData.questions[currentQuestion];
+  const progress = ((currentQuestion + 1) / testData.questions.length) * 100;
+
+  return (
+    <div className="mcq-test">
+      {/* Header */}
+      <div className="test-header">
+        <div className="test-info">
+          <h1>{testData.title}</h1>
+          <p>{testData.description}</p>
+        </div>
+        <div className="timer">
+          <Clock size={20} />
+          <span>{formatTime(timeRemaining)}</span>
+        </div>
+      </div>
+
+      {/* Progress Bar */}
+      <div className="progress-container">
+        <div className="progress-bar">
+          <div 
+            className="progress-fill" 
+            style={{ width: `${progress}%` }}
+          ></div>
+        </div>
+        <span className="progress-text">
+          Question {currentQuestion + 1} of {testData.questions.length}
+        </span>
+      </div>
+
+      {/* Question */}
+      <div className="question-container">
+        <div className="question-header">
+          <span className="question-number">Q{currentQuestion + 1}</span>
+          <span className="skill-tag">{question.skill}</span>
+        </div>
+        <h2 className="question-text">{question.question}</h2>
+        
+        <div className="options-container">
+          {question.options.map((option, index) => (
+            <button
+              key={index}
+              className={`option-button ${
+                selectedAnswers[currentQuestion] === index ? 'selected' : ''
+              }`}
+              onClick={() => handleAnswerSelect(currentQuestion, index)}
+              disabled={isSubmitted}
+            >
+              <span className="option-letter">
+                {String.fromCharCode(65 + index)}
+              </span>
+              {option}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <div className="navigation-container">
+        <button
+          className="nav-button prev"
+          onClick={() => setCurrentQuestion(prev => Math.max(0, prev - 1))}
+          disabled={currentQuestion === 0 || isSubmitted}
+        >
+          ← Previous
+        </button>
+        
+        {currentQuestion < testData.questions.length - 1 ? (
+          <button
+            className="nav-button next"
+            onClick={() => setCurrentQuestion(prev => prev + 1)}
+            disabled={selectedAnswers[currentQuestion] === -1 || isSubmitted}
+          >
+            Next →
+          </button>
+        ) : (
+          <button
+            className="submit-button"
+            onClick={handleSubmit}
+            disabled={selectedAnswers.some(answer => answer === -1) || isSubmitted}
+          >
+            {isSubmitted ? (
+              <>
+                <div className="spinner"></div>
+                Submitting...
+              </>
+            ) : (
+              <>
+                <Send size={18} />
+                Submit Test
+              </>
+            )}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default MCQTest;
