@@ -14,6 +14,7 @@ const JobApplicationResumeUpload = lazy(() => import('./pages/JobApplicationResu
 const TakeExam = lazy(() => import('./pages/TakeExam').then(m => ({ default: m.TakeExam })));
 const ExamResults = lazy(() => import('./pages/ExamResults').then(m => ({ default: m.ExamResults })));
 const Jobs = lazy(() => import('./pages/Jobs').then(m => ({ default: m.Jobs })));
+const Interview = lazy(() => import('./pages/Interview').then(m => ({ default: m.Interview })));
 const Assessments = lazy(() => import('./pages/Assessments').then(m => ({ default: m.Assessments })));
 const League = lazy(() => import('./pages/League').then(m => ({ default: m.League })));
 const Salary = lazy(() => import('./pages/Salary').then(m => ({ default: m.Salary })));
@@ -127,6 +128,7 @@ function AppRoutes() {
             <Route path="assessments" element={<Assessments />} />
             <Route path="exam-results" element={<ExamResults />} />
             <Route path="jobs" element={<Jobs />} />
+            <Route path="interview" element={<Interview />} />
             <Route path="league" element={<League />} />
             <Route path="salary" element={<Salary />} />
             <Route path="profile" element={<Profile />} />

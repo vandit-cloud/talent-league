@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Search, MapPin, Briefcase, DollarSign, Clock, Building, ChevronRight, ChevronLeft,
+  Search, MapPin, Briefcase, DollarSign, Clock, ChevronRight, ChevronLeft,
   ChevronDown, Filter, Heart, Share2, Monitor, Code, BarChart3, PenTool,
   Megaphone, Calculator, Cpu, Palette, Database, Globe, ArrowUpDown,
   X, Users

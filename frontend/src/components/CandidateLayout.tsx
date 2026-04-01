@@ -1,14 +1,15 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { 
-  LayoutGrid, 
-  FileText, 
-  Award, 
-  BarChart3, 
-  Briefcase, 
-  User, 
-  Bell, 
-  LogOut, 
+import {
+  LayoutGrid,
+  FileText,
+  Award,
+  BarChart3,
+  Briefcase,
+  Video,
+  User,
+  Bell,
+  LogOut,
   Sparkles,
   Brain,
   Search,
@@ -27,6 +28,7 @@ export function CandidateLayout() {
     { path: '/assessments', label: 'Assessments', icon: Award },
     { path: '/exam-results', label: 'Results', icon: BarChart3 },
     { path: '/jobs', label: 'Jobs', icon: Briefcase },
+    { path: '/interview', label: 'Interview', icon: Video },
   ];
 
   const handleLogout = () => {
