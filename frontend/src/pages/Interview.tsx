@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   Video, Calendar, Clock, MapPin,
   CheckCircle2, XCircle, AlertCircle, Search, X,
@@ -140,7 +139,6 @@ const filterOptions = ['All', 'Upcoming', 'Completed', 'Cancelled'];
 const sortOptions = ['Date: Nearest', 'Date: Farthest', 'Company A-Z'];
 
 export function Interview() {
-  const navigate = useNavigate();
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
 
@@ -520,20 +518,19 @@ export function Interview() {
               </div>
 
               {/* Footer */}
-              {selectedInterview.status === 'upcoming' && (
+              {selectedInterview.status === 'upcoming' && selectedInterview.meetingLink && (
                 <div className={`flex items-center justify-end gap-3 p-6 pt-4 border-t ${
                   isDark ? 'border-slate-700' : 'border-slate-200'
                 }`}>
-                  <button
-                    onClick={() => {
-                      setSelectedInterview(null);
-                      navigate(`/video-meeting?job=${encodeURIComponent(selectedInterview.jobTitle)}&company=${encodeURIComponent(selectedInterview.company)}&round=${encodeURIComponent(selectedInterview.round)}&interviewer=${encodeURIComponent(selectedInterview.interviewer || '')}`);
-                    }}
-                    className="flex items-center gap-2 px-6 py-2.5 bg-[#1a73e8] hover:bg-[#1765cc] text-white text-sm font-semibold rounded-full shadow-lg transition-all hover:-translate-y-0.5"
+                  <a
+                    href={selectedInterview.meetingLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm font-semibold rounded-lg shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:shadow-indigo-500/35 transition-all hover:-translate-y-0.5"
                   >
                     <Video className="h-4 w-4" />
                     Join Meeting
-                  </button>
+                  </a>
                 </div>
               )}
             </div>
