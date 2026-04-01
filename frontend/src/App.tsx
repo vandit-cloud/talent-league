@@ -15,6 +15,7 @@ const TakeExam = lazy(() => import('./pages/TakeExam').then(m => ({ default: m.T
 const ExamResults = lazy(() => import('./pages/ExamResults').then(m => ({ default: m.ExamResults })));
 const Jobs = lazy(() => import('./pages/Jobs').then(m => ({ default: m.Jobs })));
 const Interview = lazy(() => import('./pages/Interview').then(m => ({ default: m.Interview })));
+const VideoMeeting = lazy(() => import('./pages/VideoMeeting').then(m => ({ default: m.VideoMeeting })));
 const Assessments = lazy(() => import('./pages/Assessments').then(m => ({ default: m.Assessments })));
 const League = lazy(() => import('./pages/League').then(m => ({ default: m.League })));
 const Salary = lazy(() => import('./pages/Salary').then(m => ({ default: m.Salary })));
@@ -106,6 +107,7 @@ function AppRoutes() {
 
           {/* Special Routes (No Layout) */}
           <Route path="/mcq-test/:token" element={<MCQTest />} />
+          <Route path="/video-meeting" element={<ProtectedRoute><VideoMeeting /></ProtectedRoute>} />
           <Route path="/candidate-verification" element={<ProtectedRoute><CandidateVerification /></ProtectedRoute>} />
           <Route path="/proctoring-rules" element={<ProtectedRoute><ProctoringRules /></ProtectedRoute>} />
           <Route path="/monitoring-camera" element={<ProtectedRoute><MonitoringCamera /></ProtectedRoute>} />
