@@ -1,10 +1,64 @@
 [
   {
-    "name": "raju",
+    "name": "raja",
     "email": "raju@gmail.com",
-    "password": "$2b$10$zfcxoQQzUDcBg4U9GiIiNuiOeE7qODH0epC72UxmZnFzgwEwmyxdW",
+    "password": "$2b$10$tE53COhy4pWvTCy3tifViOIUuDk1mCXN03iLl8VWFqYJsa3zrI2eG",
     "role": "candidate",
-    "_id": "offline_1775023965519",
-    "createdAt": "2026-04-01T06:12:45.519Z"
+    "emailVerified": false,
+    "_id": "offline_1775043589937",
+    "createdAt": "2026-04-01T11:39:49.937Z",
+    "signupOtpToken": "a555f8fcbebaf6e4c510a35951f133f59c9d128e6de269a59810c881a5b545af",
+    "signupOtpExpires": "2026-04-01T11:49:49.938Z"
+  },
+  {
+    "name": "Rudra Patel",
+    "email": "rudrapatel7500@gmail.com",
+    "password": "$2b$10$KIlVZhi4UE0tHwKaT1Ueu.KWoZcRWt7JAH/YdnIMXFPWPkAU7fs5W",
+    "role": "candidate",
+    "emailVerified": true,
+    "_id": "offline_1775048956395",
+    "createdAt": "2026-04-01T13:09:16.395Z"
+  },
+  {
+    "name": "Test",
+    "email": "test@company.com",
+    "password": "$2b$10$iivAyAStWuSclbscdgOX9.tTw6oIb2fBq7iDnhgy4l8tk5.PFJvOm",
+    "role": "recruiter",
+    "companyName": "TestCorp",
+    "gstNumber": "27AAPFU0939F1ZV",
+    "companyVerified": false,
+    "verificationStatus": "pending",
+    "emailVerified": false,
+    "_id": "offline_1775113758582",
+    "createdAt": "2026-04-02T07:09:18.582Z",
+    "signupOtpToken": "b2de81b88a380c80bcc6a9c439d5c3180eb9e0080a808d518586d62360b6494e",
+    "signupOtpExpires": "2026-04-02T07:19:18.590Z"
+  },
+  {
+    "name": "Test CIN",
+    "email": "cin@co.com",
+    "password": "$2b$10$YuG3JldBzVgwVPFlmA7l3ekF.8pQCc27RkxU7CZLqurbcxN9Rr6DG",
+    "role": "recruiter",
+    "companyName": "CIN Corp",
+    "cinNumber": "U72200MH2020PTC345678",
+    "companyVerified": false,
+    "verificationStatus": "pending",
+    "emailVerified": false,
+    "_id": "offline_1775113774086",
+    "createdAt": "2026-04-02T07:09:34.086Z",
+    "signupOtpToken": "a63da2f89db3597c5fb2f7378f975e5615c81fce419f006bc20e896c77f68b9d",
+    "signupOtpExpires": "2026-04-02T07:19:34.087Z"
+  },
+  {
+    "name": "Sneaky",
+    "email": "sneaky@co.com",
+    "password": "$2b$10$VN9mYdrhlcjPxHh4CdbUH.MpZ0xx8HjeI3hCEKVCyArxw/XQH.sFG",
+    "role": "candidate",
+    "emailVerified": false,
+    "verificationStatus": "not_required",
+    "_id": "offline_1775113777135",
+    "createdAt": "2026-04-02T07:09:37.135Z",
+    "signupOtpToken": "fe30168c8aae6190a518cc223b5e2fcdd523f32c3645c72624bbbbfc5e1c913b",
+    "signupOtpExpires": "2026-04-02T07:19:37.135Z"
   }
 ]
