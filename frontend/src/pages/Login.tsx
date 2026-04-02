@@ -17,6 +17,7 @@ import {
 import { GoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../components/Toast';
 import { getApiUrl, getBackendBaseUrl } from '../lib/api/base';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { useTheme } from '../context/ThemeContext';
@@ -59,6 +60,7 @@ export function Login() {
   const { login, setAuthSession } = useAuth();
   const { resolvedTheme } = useTheme();
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const isDark = resolvedTheme === 'dark';
   const activeRoleCard = roleCards[role];
@@ -79,14 +81,14 @@ export function Login() {
           },
           res.data.token
         );
-        alert(`Welcome back, ${res.data.name}!`);
+        showToast(`Welcome back, ${res.data.name}!`, 'success');
         navigate(res.data.role === 'recruiter' ? '/recruiter/dashboard' : '/dashboard');
       }
     } catch (error) {
       console.error('Google login error:', error);
       setErrorMsg('Google Login Failed');
       const message = (error as any)?.response?.data?.message || 'Unknown error';
-      alert(`Google Login Failed: ${message}`);
+      showToast(`Google Login Failed: ${message}`, 'error');
     }
   };
 
@@ -95,7 +97,7 @@ export function Login() {
 
     if (!isValidPassword(password)) {
       setErrorMsg(PASSWORD_RULE_TEXT);
-      alert(PASSWORD_RULE_TEXT);
+      showToast(PASSWORD_RULE_TEXT, 'warning');
       return;
     }
 
@@ -113,7 +115,7 @@ export function Login() {
         return;
       }
       setErrorMsg(message);
-      alert('Sign in failed: ' + message);
+      showToast('Sign in failed: ' + message, 'error');
     } finally {
       setIsLoading(false);
     }

@@ -15,6 +15,7 @@ import {
   UserRound
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../components/Toast';
 import { useTheme } from '../context/ThemeContext';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { isValidPassword, PASSWORD_RULE_TEXT } from '../utils/passwordValidation';
@@ -71,6 +72,7 @@ export function Signup() {
   const { signup } = useAuth();
   const { resolvedTheme } = useTheme();
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const isDark = resolvedTheme === 'dark';
   const activeRole = roleConfig.candidate;
@@ -84,13 +86,13 @@ export function Signup() {
 
     if (password !== confirmPassword) {
       setFormError('Passwords do not match.');
-      alert('Passwords do not match');
+      showToast('Passwords do not match', 'error');
       return;
     }
 
     if (!isValidPassword(password)) {
       setFormError(PASSWORD_RULE_TEXT);
-      alert(PASSWORD_RULE_TEXT);
+      showToast(PASSWORD_RULE_TEXT, 'warning');
       return;
     }
 
@@ -107,7 +109,7 @@ export function Signup() {
       console.error('Signup failed:', error);
       const message = error instanceof Error ? error.message : 'Unknown error';
       setFormError(message);
-      alert(`Signup failed: ${message}`);
+      showToast(`Signup failed: ${message}`, 'error');
     } finally {
       setIsLoading(false);
     }

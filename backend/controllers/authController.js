@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const offlineStore = require('../utils/offlineStore');
 const { sendHtmlEmail } = require('../utils/emailSender');
+const { sanitizeString, sanitizeEmail } = require('../utils/sanitize');
 
 const isDbConnected = () => mongoose.connection.readyState === 1;
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/;
@@ -15,6 +16,8 @@ const PROFILE_NAME_MAX_LENGTH = 80;
 const PROFILE_PHONE_MAX_LENGTH = 30;
 const PROFILE_LOCATION_MAX_LENGTH = 120;
 const PROFILE_AVATAR_MAX_LENGTH = 3_000_000;
+const JWT_EXPIRY = '30d';
+const BCRYPT_SALT_ROUNDS = 10;
 
 const hashValue = (value) => crypto.createHash('sha256').update(value).digest('hex');
 const generateResetOtp = () => String(Math.floor(100000 + Math.random() * 900000));
@@ -236,14 +239,15 @@ const sendSignupOtp = async (user, name) => {
 };
 
 const registerUser = async (req, res) => {
-    const { name, password } = req.body;
-    const email = req.body.email?.trim().toLowerCase();
+    const name = sanitizeString(req.body.name);
+    const { password } = req.body;
+    const email = sanitizeEmail(req.body.email);
 
     // SECURITY: This endpoint only creates candidate accounts.
     // Recruiters must use /register-recruiter with GST/CIN verification.
     const role = 'candidate';
 
-    console.log('Registration request received:', { name, email, role });
+    // Registration request
 
     try {
         if (!PASSWORD_REGEX.test(password || '')) {
@@ -291,7 +295,7 @@ const registerUser = async (req, res) => {
                 });
             }
 
-            const salt = await bcrypt.genSalt(10);
+            const salt = await bcrypt.genSalt(BCRYPT_SALT_ROUNDS);
             const hashedPassword = await bcrypt.hash(password, salt);
 
             const user = offlineStore.addUser({
@@ -409,7 +413,7 @@ const resendSignupOtp = async (req, res) => {
 // @access  Public
 const loginUser = async (req, res) => {
     const { password, role } = req.body;
-    const email = req.body.email?.trim().toLowerCase();
+    const email = sanitizeEmail(req.body.email);
 
     try {
         if (isDbConnected()) {
@@ -647,7 +651,7 @@ const resetPassword = async (req, res) => {
                 match.user.resetPasswordExpires = undefined;
                 await match.user.save();
             } else {
-                const salt = await bcrypt.genSalt(10);
+                const salt = await bcrypt.genSalt(BCRYPT_SALT_ROUNDS);
                 const hashedPassword = await bcrypt.hash(password, salt);
 
                 offlineStore.updateUser(match.user._id, {
@@ -730,8 +734,7 @@ const verifyGoogleToken = async (req, res) => {
         }));
     } catch (error) {
         console.error('Google Verification Error:', error.message);
-        console.error('GOOGLE_CLIENT_ID used:', process.env.GOOGLE_CLIENT_ID);
-        res.status(401).json({ message: 'Invalid Google Token: ' + error.message });
+        res.status(401).json({ message: 'Google authentication failed. Please try again.' });
     }
 };
 
@@ -739,10 +742,13 @@ const verifyGoogleToken = async (req, res) => {
 // @route   POST /api/auth/register-recruiter
 // @access  Public
 const registerRecruiter = async (req, res) => {
-    const { name, password, companyName, gstNumber, cinNumber, udyamNumber } = req.body;
-    const email = req.body.email?.trim().toLowerCase();
+    const name = sanitizeString(req.body.name);
+    const { password } = req.body;
+    const companyName = sanitizeString(req.body.companyName);
+    const { gstNumber, cinNumber, udyamNumber } = req.body;
+    const email = sanitizeEmail(req.body.email);
 
-    console.log('Recruiter registration request received:', { name, email, companyName });
+    // Recruiter registration request
 
     try {
         if (!PASSWORD_REGEX.test(password || '')) {
@@ -844,7 +850,7 @@ const registerRecruiter = async (req, res) => {
                 });
             }
 
-            const salt = await bcrypt.genSalt(10);
+            const salt = await bcrypt.genSalt(BCRYPT_SALT_ROUNDS);
             const hashedPassword = await bcrypt.hash(password, salt);
 
             const user = offlineStore.addUser({
@@ -947,7 +953,7 @@ const verifyCompany = async (req, res) => {
 // Generate JWT
 const generateToken = (id) => {
     return jwt.sign({ id }, getJwtSecret(), {
-        expiresIn: '30d',
+        expiresIn: JWT_EXPIRY,
     });
 };
 

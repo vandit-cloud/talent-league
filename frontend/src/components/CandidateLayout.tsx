@@ -1,5 +1,6 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useState } from 'react';
 import {
   LayoutGrid,
   FileText,
@@ -14,7 +15,9 @@ import {
   Sparkles,
   Brain,
   Search,
-  PlusCircle
+  PlusCircle,
+  Menu,
+  X
 } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 
@@ -22,6 +25,7 @@ export function CandidateLayout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const menuItems = [
     { path: '/dashboard', label: 'Dashboard', icon: LayoutGrid },
@@ -55,8 +59,15 @@ export function CandidateLayout() {
         <div className="absolute -bottom-40 right-1/4 w-80 h-80 bg-gradient-to-br from-pink-400/20 to-rose-400/20 rounded-full blur-3xl blob blob-delay-3"></div>
       </div>
 
+      {/* Mobile menu overlay */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-40 md:hidden" onClick={() => setMobileMenuOpen(false)}>
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+        </div>
+      )}
+
       {/* Sidebar */}
-      <aside className="app-sidebar app-sidebar-collapsible flex h-screen w-64 flex-shrink-0 flex-col overflow-y-auto border-r md:fixed md:inset-y-0 md:left-0 md:z-30 md:w-[6.25rem] md:overflow-hidden md:hover:w-72">
+      <aside className={`app-sidebar app-sidebar-collapsible flex h-screen w-64 flex-shrink-0 flex-col overflow-y-auto border-r fixed inset-y-0 left-0 z-50 transition-transform duration-300 md:z-30 md:w-[6.25rem] md:overflow-hidden md:hover:w-72 md:translate-x-0 ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
         {/* Logo Section */}
         <div className="sticky top-0 z-10 border-b border-white/20 px-4 py-6 backdrop-blur-xl">
           <div
@@ -88,7 +99,7 @@ export function CandidateLayout() {
             return (
               <button
                 key={item.path}
-                onClick={() => navigate(item.path)}
+                onClick={() => { navigate(item.path); setMobileMenuOpen(false); }}
                 title={item.label}
                 className={`w-full relative inline-flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-300 ${
                   isActive
@@ -148,13 +159,22 @@ export function CandidateLayout() {
         {/* Top Header */}
         <header className="app-header sticky top-0 z-20 border-b px-6 py-4 backdrop-blur-xl">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="app-title text-xl font-semibold">
-                {pageTitle}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="app-icon-button rounded-xl p-2.5 md:hidden"
+                aria-label="Toggle menu"
+              >
+                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </button>
+              <div>
+                <h1 className="app-title text-xl font-semibold">
+                  {pageTitle}
               </h1>
               <p className="app-muted text-sm">Welcome back, {user?.name || 'User'}!</p>
+              </div>
             </div>
-            
+
             {/* Right Side Actions */}
             <div className="flex items-center gap-3">
               <button
@@ -166,7 +186,7 @@ export function CandidateLayout() {
               </button>
               <ThemeToggle />
               {/* Notifications */}
-              <button className="app-icon-button relative rounded-xl p-2.5 group">
+              <button className="app-icon-button relative rounded-xl p-2.5 group" aria-label="Notifications">
                 <Bell className="h-5 w-5 group-hover:scale-110 transition-transform" />
                 <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full animate-pulse"></span>
               </button>

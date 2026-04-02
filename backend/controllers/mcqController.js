@@ -484,9 +484,21 @@ const submitTest = async (req, res) => {
         const { answers, violations } = req.body;
 
         const test = await MCQTest.findOne({ testToken: token });
-        
-        if (!test || test.status === 'completed') {
-            return res.status(404).json({ message: 'Test not found or already completed' });
+
+        if (!test) {
+            return res.status(404).json({ message: 'Test not found' });
+        }
+
+        if (test.status === 'completed') {
+            return res.status(400).json({ message: 'Test already submitted. Cannot resubmit.' });
+        }
+
+        if (test.status === 'expired') {
+            return res.status(400).json({ message: 'Test has expired.' });
+        }
+
+        if (!Array.isArray(answers)) {
+            return res.status(400).json({ message: 'Answers must be an array.' });
         }
 
         // Calculate score

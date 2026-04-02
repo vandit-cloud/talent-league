@@ -36,7 +36,7 @@ export function OAuthCallback() {
             setAuthSession(userData as any, token);
 
             setTimeout(() => {
-                if (returnUrl && returnUrl.startsWith('/')) {
+                if (returnUrl && returnUrl.startsWith('/') && !returnUrl.startsWith('//')) {
                     navigate(returnUrl);
                 } else if (role === 'recruiter') {
                     navigate('/recruiter/dashboard');

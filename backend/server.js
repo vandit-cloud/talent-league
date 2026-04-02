@@ -10,9 +10,7 @@ const { getRuntimePublicUrls } = require('./utils/runtimeConfig');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-const client = new OAuth2Client(
-    "222922228938-7h7qidkkibnntepkei225gb8v34sid0t.apps.googleusercontent.com"
-);
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Connect to Database
 connectDB();
@@ -34,11 +32,11 @@ app.use(cors({
             'ionic://localhost'
         ];
 
-        // Allow any localhost origin (for Capacitor)
-        if (origin.includes('localhost') || allowedOrigins.indexOf(origin) !== -1) {
+        // Allow localhost origins and configured origins
+        if (origin.includes('localhost') || origin.includes('127.0.0.1') || allowedOrigins.indexOf(origin) !== -1) {
             callback(null, true);
         } else {
-            callback(null, true); // Allow all for now to debug
+            callback(new Error('Not allowed by CORS'));
         }
     },
     credentials: true
@@ -49,11 +47,13 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Serve static files from public directory
 app.use(express.static('public'));
 
-// Request logging middleware
-app.use((req, res, next) => {
-    console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
-    next();
-});
+// Request logging middleware (only in development)
+if (process.env.NODE_ENV !== 'production') {
+    app.use((req, res, next) => {
+        console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+        next();
+    });
+}
 
 // Basic Route
 app.get('/', (req, res) => {
@@ -65,31 +65,35 @@ app.get('/open-app/:token', (req, res) => {
     res.sendFile(__dirname + '/public/app-redirect.html');
 });
 
-// Test route
-app.get('/test', (req, res) => {
-    console.log('Test route hit from:', req.headers['user-agent']?.substring(0, 50));
-    res.json({
-        message: 'Backend is working',
-        time: new Date().toISOString(),
-        groq_key: process.env.GROQ_API_KEY ? 'Present' : 'Missing',
-        gemini_key: process.env.GEMINI_API_KEY ? 'Present' : 'Missing',
-        cors_origin: req.headers.origin || 'No origin header'
-    });
+// Health check (safe for production)
+app.get('/health', (req, res) => {
+    res.json({ status: 'OK', time: new Date().toISOString() });
 });
 
-// Diagnostic route for mobile app
-app.get('/diagnostic', (req, res) => {
-    console.log('📱 Diagnostic check from:', req.headers['user-agent']);
-    const { backendUrl, frontendUrl } = getRuntimePublicUrls();
-    res.json({
-        status: 'OK',
-        backend_url: backendUrl,
-        frontend_url: frontendUrl,
-        timestamp: new Date().toISOString(),
-        origin: req.headers.origin,
-        user_agent: req.headers['user-agent']
+// Debug routes (development only)
+if (process.env.NODE_ENV !== 'production') {
+    app.get('/test', (req, res) => {
+        res.json({
+            message: 'Backend is working',
+            time: new Date().toISOString(),
+            groq_key: process.env.GROQ_API_KEY ? 'Present' : 'Missing',
+            gemini_key: process.env.GEMINI_API_KEY ? 'Present' : 'Missing',
+            cors_origin: req.headers.origin || 'No origin header'
+        });
     });
-});
+
+    app.get('/diagnostic', (req, res) => {
+        const { backendUrl, frontendUrl } = getRuntimePublicUrls();
+        res.json({
+            status: 'OK',
+            backend_url: backendUrl,
+            frontend_url: frontendUrl,
+            timestamp: new Date().toISOString(),
+            origin: req.headers.origin,
+            user_agent: req.headers['user-agent']
+        });
+    });
+}
 
 // Authentication Routes are handled via app.use('/api/auth', ...) below
 

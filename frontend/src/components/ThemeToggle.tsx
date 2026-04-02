@@ -11,6 +11,7 @@ export function ThemeToggle() {
         onClick={toggleTheme}
         className="theme-toggle-btn inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium"
         title={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} mode`}
+        aria-label={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} mode`}
       >
         {resolvedTheme === 'dark' ? <SunMedium className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
         <span>{resolvedTheme === 'dark' ? 'Light' : 'Dark'}</span>
@@ -22,6 +23,7 @@ export function ThemeToggle() {
           theme === 'system' ? 'theme-toggle-btn-active' : ''
         }`}
         title="Follow system theme"
+        aria-label="Follow system theme"
       >
         <Laptop className="h-4 w-4" />
         <span>Auto</span>
