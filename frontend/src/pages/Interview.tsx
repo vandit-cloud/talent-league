@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  Video, VideoOff, Calendar, Clock, MapPin,
-  CheckCircle2, XCircle, AlertCircle, Search, X,
-  Phone, User, CalendarDays, Timer, ArrowUpDown,
+  Video, VideoOff, Clock, X,
+  Phone, User, CalendarDays, Timer,
   Mic, MicOff, MonitorUp, Hand, MoreVertical,
   MessageSquare, Users, Send, Copy, Check, Shield,
   Maximize, Minimize, Pin, PinOff, ScreenShareOff,
@@ -140,21 +139,6 @@ const sampleInterviews: InterviewData[] = [
     notes: 'React Native live coding. Offer extended.',
   },
 ];
-
-const statusConfig: Record<InterviewStatus, { label: string; icon: typeof CheckCircle2; color: string; bg: string; darkBg: string }> = {
-  upcoming: { label: 'Upcoming', icon: AlertCircle, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 border-blue-200', darkBg: 'dark:bg-blue-500/10 dark:border-blue-400/20' },
-  completed: { label: 'Completed', icon: CheckCircle2, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 border-emerald-200', darkBg: 'dark:bg-emerald-500/10 dark:border-emerald-400/20' },
-  cancelled: { label: 'Cancelled', icon: XCircle, color: 'text-rose-600 dark:text-rose-400', bg: 'bg-rose-50 border-rose-200', darkBg: 'dark:bg-rose-500/10 dark:border-rose-400/20' },
-};
-
-const typeIcon: Record<InterviewType, typeof Video> = {
-  video: Video,
-  phone: Phone,
-  'in-person': User,
-};
-
-const filterOptions = ['All', 'Upcoming', 'Completed', 'Cancelled'];
-const sortOptions = ['Date: Nearest', 'Date: Farthest', 'Company A-Z'];
 
 /* ========== Meeting Component ========== */
 
@@ -1055,7 +1039,7 @@ function MeetingRoom({ interview, onLeave }: { interview: InterviewData; onLeave
   );
 }
 
-/* ========== Interview List Page ========== */
+/* ========== Interview Page — Join Meeting ========== */
 
 export function Interview() {
   const { resolvedTheme } = useTheme();
@@ -1063,211 +1047,146 @@ export function Interview() {
   const isDark = resolvedTheme === 'dark';
 
   const [interviews, setInterviews] = useState<InterviewData[]>(sampleInterviews);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('All');
-  const [sortBy, setSortBy] = useState('Date: Nearest');
-  const [selectedInterview, setSelectedInterview] = useState<InterviewData | null>(null);
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [activeMeeting, setActiveMeeting] = useState<InterviewData | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Fetch real interviews from API for this candidate
   useEffect(() => {
-    if (!user?.email) return;
+    if (!user?.email) { setLoading(false); return; }
     const fetchInterviews = async () => {
       try {
         const res = await axios.get(getApiUrl(`/interviews?candidateEmail=${encodeURIComponent(user.email)}`));
         if (res.data && res.data.length > 0) {
-          const mapped = res.data.map((i: any) => ({
-            id: i._id,
-            jobTitle: i.jobTitle,
-            company: i.company,
-            date: i.date,
-            time: i.time,
-            duration: i.duration || '45 min',
-            type: i.type || 'video',
-            status: i.status || 'upcoming',
-            round: i.round || 'Interview Round',
-            interviewer: i.interviewer,
-            location: i.location,
-            meetingLink: i.type === 'video' ? '#' : undefined,
-            notes: i.notes,
-          }));
-          setInterviews(mapped);
+          setInterviews(res.data.map((i: any) => ({
+            id: i._id, jobTitle: i.jobTitle, company: i.company, date: i.date, time: i.time,
+            duration: i.duration || '45 min', type: i.type || 'video', status: i.status || 'upcoming',
+            round: i.round || 'Interview Round', interviewer: i.interviewer, location: i.location,
+            meetingLink: i.type === 'video' ? '#' : undefined, notes: i.notes,
+          })));
         }
-      } catch { /* keep sample data as fallback */ }
+      } catch { /* keep sample data */ }
+      setLoading(false);
     };
     fetchInterviews();
   }, [user?.email]);
 
-  useEffect(() => {
-    const handleClickOutside = () => setOpenDropdown(null);
-    if (openDropdown) { document.addEventListener('click', handleClickOutside); return () => document.removeEventListener('click', handleClickOutside); }
-  }, [openDropdown]);
-
-  const formatDate = (dateStr: string) => new Date(dateStr).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
-  const isToday = (dateStr: string) => dateStr === new Date().toISOString().split('T')[0];
-  const isTomorrow = (dateStr: string) => { const t = new Date(); t.setDate(t.getDate() + 1); return dateStr === t.toISOString().split('T')[0]; };
-  const getDateLabel = (dateStr: string) => { if (isToday(dateStr)) return 'Today'; if (isTomorrow(dateStr)) return 'Tomorrow'; return formatDate(dateStr); };
-  const getCompanyInitial = (name: string) => name.charAt(0).toUpperCase();
-  const getCompanyColor = (name: string) => {
-    const colors = ['from-blue-500 to-blue-700','from-indigo-500 to-indigo-700','from-purple-500 to-purple-700','from-emerald-500 to-emerald-700','from-orange-500 to-orange-700','from-rose-500 to-rose-700','from-cyan-500 to-cyan-700','from-teal-500 to-teal-700'];
-    return colors[name.split('').reduce((a, c) => a + c.charCodeAt(0), 0) % colors.length];
-  };
-
-  const filtered = interviews
-    .filter(i => {
-      const matchesSearch = !searchTerm || i.jobTitle.toLowerCase().includes(searchTerm.toLowerCase()) || i.company.toLowerCase().includes(searchTerm.toLowerCase()) || i.round.toLowerCase().includes(searchTerm.toLowerCase());
-      return matchesSearch && (statusFilter === 'All' || i.status === statusFilter.toLowerCase());
-    })
-    .sort((a, b) => { if (sortBy === 'Date: Nearest') return new Date(a.date).getTime() - new Date(b.date).getTime(); if (sortBy === 'Date: Farthest') return new Date(b.date).getTime() - new Date(a.date).getTime(); return a.company.localeCompare(b.company); });
-
-  const upcomingCount = interviews.filter(i => i.status === 'upcoming').length;
-  const completedCount = interviews.filter(i => i.status === 'completed').length;
-  const cancelledCount = interviews.filter(i => i.status === 'cancelled').length;
-
-  /* Active Meeting */
+  // If inside a meeting, show the MeetingRoom
   if (activeMeeting) {
     return <MeetingRoom interview={activeMeeting} onLeave={() => setActiveMeeting(null)} />;
   }
 
+  const upcoming = interviews
+    .filter(i => i.status === 'upcoming')
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+  const isToday = (d: string) => d === new Date().toISOString().split('T')[0];
+  const isTomorrow = (d: string) => { const t = new Date(); t.setDate(t.getDate() + 1); return d === t.toISOString().split('T')[0]; };
+  const getDateLabel = (d: string) => { if (isToday(d)) return 'Today'; if (isTomorrow(d)) return 'Tomorrow'; try { return new Date(d).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' }); } catch { return d; } };
+  const getCompanyColor = (name: string) => {
+    const colors = ['from-blue-500 to-indigo-600','from-indigo-500 to-purple-600','from-purple-500 to-violet-600','from-emerald-500 to-teal-600','from-orange-500 to-red-600','from-rose-500 to-pink-600','from-cyan-500 to-blue-600','from-teal-500 to-emerald-600'];
+    return colors[name.split('').reduce((a, c) => a + c.charCodeAt(0), 0) % colors.length];
+  };
+  const TypeIcon = (t: string) => t === 'phone' ? Phone : t === 'in-person' ? User : Video;
+
+  const card = `rounded-2xl border transition-all ${isDark ? 'border-white/10 bg-white/[0.03]' : 'border-slate-200 bg-white shadow-sm'}`;
+
   return (
-    <div className={`min-h-screen ${isDark ? 'bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950' : 'bg-gradient-to-b from-slate-50 via-white to-slate-50'}`}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className={`text-3xl sm:text-4xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>My Interviews</h1>
-          <p className={`mt-1 text-base ${isDark ? 'text-slate-300' : 'text-slate-500'}`}>Track and manage all your scheduled interviews in one place.</p>
+    <div className="p-6 space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>Join Meeting</h1>
+        <p className={`mt-1 text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+          {upcoming.length > 0
+            ? `You have ${upcoming.length} upcoming interview${upcoming.length > 1 ? 's' : ''}. Click "Join" when ready.`
+            : 'No upcoming interviews right now.'}
+        </p>
+      </div>
+
+      {loading && (
+        <div className="flex items-center justify-center py-20">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
         </div>
+      )}
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-          {[
-            { label: 'Upcoming', count: upcomingCount, icon: Calendar, gradient: 'from-blue-500 to-indigo-600' },
-            { label: 'Completed', count: completedCount, icon: CheckCircle2, gradient: 'from-emerald-500 to-teal-600' },
-            { label: 'Cancelled', count: cancelledCount, icon: XCircle, gradient: 'from-rose-500 to-pink-600' },
-          ].map(stat => (
-            <div key={stat.label} className={`rounded-xl border p-5 ${isDark ? 'bg-slate-800/60 border-slate-700' : 'bg-white border-slate-200'}`}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className={`text-sm font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{stat.label}</p>
-                  <p className={`text-2xl font-bold mt-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>{stat.count}</p>
-                </div>
-                <div className={`h-11 w-11 rounded-xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center shadow-lg`}><stat.icon className="h-5 w-5 text-white" /></div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Search */}
-        <div className={`mb-5 rounded-xl border p-3 ${isDark ? 'bg-slate-800/60 border-slate-700' : 'bg-white border-slate-200'}`}>
-          <div className="relative">
-            <Search className={`absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 ${isDark ? 'text-slate-400' : 'text-slate-400'}`} />
-            <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className={`w-full pl-10 pr-4 py-3 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 border ${isDark ? 'bg-slate-900 border-slate-700 text-white placeholder:text-slate-400' : 'bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400'}`} placeholder="Search by job title, company, or round..." />
-          </div>
-        </div>
-
-        {/* Filters */}
-        <div className="flex flex-wrap items-center gap-2 mb-6">
-          {filterOptions.map(opt => (
-            <button key={opt} onClick={() => setStatusFilter(opt)} className={`px-4 py-2 rounded-full text-sm font-medium border transition-all ${statusFilter === opt ? 'bg-indigo-500 border-indigo-500 text-white' : isDark ? 'bg-slate-800 border-slate-600 text-slate-300 hover:border-slate-500' : 'bg-white border-slate-200 text-slate-700 hover:border-slate-400'}`}>{opt}</button>
-          ))}
-          <div className="relative ml-auto">
-            <button onClick={(e) => { e.stopPropagation(); setOpenDropdown(openDropdown === 'sort' ? null : 'sort'); }} className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium border transition-all ${isDark ? 'bg-slate-800 border-slate-600 text-slate-300 hover:border-slate-500' : 'bg-white border-slate-200 text-slate-700 hover:border-slate-400'}`}><ArrowUpDown className="h-3.5 w-3.5" />Sort</button>
-            {openDropdown === 'sort' && (
-              <div className={`absolute top-full right-0 mt-2 py-1 rounded-xl shadow-xl border z-50 min-w-[180px] ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
-                {sortOptions.map(opt => (
-                  <button key={opt} onClick={(e) => { e.stopPropagation(); setSortBy(opt); setOpenDropdown(null); }} className={`w-full text-left px-4 py-2 text-sm transition-colors ${sortBy === opt ? isDark ? 'bg-indigo-500/20 text-indigo-300' : 'bg-indigo-50 text-indigo-700' : isDark ? 'text-slate-300 hover:bg-slate-700' : 'text-slate-700 hover:bg-slate-50'}`}>{opt}</button>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className={`mb-4 text-sm font-medium ${isDark ? 'text-slate-300' : 'text-slate-500'}`}>Showing {filtered.length} interview{filtered.length !== 1 ? 's' : ''}</div>
-
-        {/* List */}
+      {/* Interview cards */}
+      {!loading && upcoming.length > 0 && (
         <div className="space-y-4">
-          {filtered.map(interview => {
-            const status = statusConfig[interview.status];
-            const StatusIcon = status.icon;
-            const TypeIcon = typeIcon[interview.type];
+          {upcoming.map((interview) => {
+            const TIcon = TypeIcon(interview.type);
+            const dateLabel = getDateLabel(interview.date);
+            const isNow = isToday(interview.date);
+
             return (
-              <div key={interview.id} onClick={() => setSelectedInterview(interview)} className={`group rounded-xl border p-5 sm:p-6 cursor-pointer transition-all hover:shadow-lg ${isDark ? 'bg-slate-800/60 border-slate-700/60 hover:border-slate-600' : 'bg-white border-slate-200 hover:border-slate-300'}`}>
-                <div className="flex gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-2 mb-2">
-                      <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full border ${status.bg} ${status.darkBg}`}><StatusIcon className={`h-3 w-3 ${status.color}`} /><span className={status.color}>{status.label}</span></span>
-                      <span className={`text-xs font-medium ${isToday(interview.date) ? 'text-indigo-600 dark:text-indigo-400' : isDark ? 'text-slate-400' : 'text-slate-500'}`}>{getDateLabel(interview.date)}</span>
-                      <span className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{interview.time}</span>
+              <div key={interview.id} className={`${card} overflow-hidden`}>
+                <div className="flex items-stretch">
+                  {/* Color stripe */}
+                  <div className={`w-1.5 bg-gradient-to-b ${getCompanyColor(interview.company)}`} />
+
+                  <div className="flex flex-1 items-center gap-5 p-5 sm:p-6">
+                    {/* Company initial */}
+                    <div className={`hidden sm:flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${getCompanyColor(interview.company)} shadow-lg`}>
+                      <span className="text-2xl font-bold text-white">{interview.company.charAt(0)}</span>
                     </div>
-                    <h3 className={`text-lg font-bold mb-1 transition-colors ${isDark ? 'text-indigo-400 group-hover:text-indigo-300' : 'text-indigo-600 group-hover:text-indigo-700'}`}>{interview.jobTitle}</h3>
-                    <p className={`text-sm font-medium mb-3 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{interview.company}</p>
-                    <div className={`flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
-                      <div className="flex items-center gap-1.5"><CalendarDays className="h-3.5 w-3.5" /><span>{interview.round}</span></div>
-                      <div className="flex items-center gap-1.5"><TypeIcon className="h-3.5 w-3.5" /><span className="capitalize">{interview.type === 'in-person' ? 'In Person' : interview.type}</span></div>
-                      <div className="flex items-center gap-1.5"><Timer className="h-3.5 w-3.5" /><span>{interview.duration}</span></div>
-                      {interview.interviewer && <div className="flex items-center gap-1.5"><User className="h-3.5 w-3.5" /><span>{interview.interviewer}</span></div>}
+
+                    {/* Details */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        {isNow && (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-bold text-emerald-500 ring-1 ring-emerald-500/20">
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                            Today
+                          </span>
+                        )}
+                        {!isNow && (
+                          <span className={`text-xs font-semibold ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{dateLabel}</span>
+                        )}
+                        <span className={`text-xs ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>{interview.time}</span>
+                      </div>
+
+                      <h3 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{interview.jobTitle}</h3>
+                      <p className={`text-sm font-medium ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{interview.company}</p>
+
+                      <div className={`mt-2 flex flex-wrap items-center gap-3 text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                        <span className="flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5" />{interview.round}</span>
+                        <span className="flex items-center gap-1"><TIcon className="h-3.5 w-3.5" /><span className="capitalize">{interview.type === 'in-person' ? 'In Person' : interview.type}</span></span>
+                        <span className="flex items-center gap-1"><Timer className="h-3.5 w-3.5" />{interview.duration}</span>
+                        {interview.interviewer && <span className="flex items-center gap-1"><User className="h-3.5 w-3.5" />{interview.interviewer}</span>}
+                      </div>
+
+                      {interview.notes && (
+                        <p className={`mt-2 text-xs leading-relaxed ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>{interview.notes}</p>
+                      )}
                     </div>
-                    {interview.notes && <p className={`mt-2 text-xs line-clamp-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{interview.notes}</p>}
-                  </div>
-                  <div className="hidden sm:flex flex-col items-center gap-2 ml-2">
-                    <div className={`h-14 w-14 rounded-xl bg-gradient-to-br ${getCompanyColor(interview.company)} flex items-center justify-center shadow-lg flex-shrink-0`}><span className="text-white text-xl font-bold">{getCompanyInitial(interview.company)}</span></div>
+
+                    {/* Join button */}
+                    <div className="flex-shrink-0">
+                      <button
+                        onClick={() => setActiveMeeting(interview)}
+                        className="group flex items-center gap-2 rounded-2xl bg-[#1a73e8] px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-blue-500/25 transition-all hover:bg-[#1765cc] hover:translate-y-[-2px] hover:shadow-xl hover:shadow-blue-500/30"
+                      >
+                        <Video className="h-5 w-5" />
+                        <span>Join</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
             );
           })}
-          {filtered.length === 0 && (
-            <div className={`rounded-xl border p-12 text-center ${isDark ? 'bg-slate-800/60 border-slate-700' : 'bg-white border-slate-200'}`}>
-              <div className={`h-16 w-16 mx-auto rounded-full flex items-center justify-center mb-4 ${isDark ? 'bg-slate-700' : 'bg-slate-100'}`}><Calendar className={`h-8 w-8 ${isDark ? 'text-slate-500' : 'text-slate-400'}`} /></div>
-              <h3 className={`text-xl font-semibold mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>No interviews found</h3>
-              <p className={`mb-6 max-w-md mx-auto ${isDark ? 'text-slate-300' : 'text-slate-500'}`}>Apply to jobs to get interview invitations.</p>
-            </div>
-          )}
         </div>
-      </div>
+      )}
 
-      {/* Detail Modal */}
-      {selectedInterview && (() => {
-        const status = statusConfig[selectedInterview.status];
-        const StatusIcon = status.icon;
-        const TypeIcon = typeIcon[selectedInterview.type];
-        return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setSelectedInterview(null)}>
-            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
-            <div className={`relative w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl ${isDark ? 'bg-slate-900 border border-slate-700' : 'bg-white'}`} onClick={(e) => e.stopPropagation()}>
-              <div className={`flex items-start justify-between gap-4 p-6 pb-4 border-b ${isDark ? 'border-slate-700' : 'border-slate-200'}`}>
-                <div className="flex gap-4 min-w-0">
-                  <div className={`h-12 w-12 rounded-xl bg-gradient-to-br ${getCompanyColor(selectedInterview.company)} flex items-center justify-center shadow-lg flex-shrink-0`}><span className="text-white text-lg font-bold">{getCompanyInitial(selectedInterview.company)}</span></div>
-                  <div className="min-w-0"><h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{selectedInterview.jobTitle}</h2><p className={`text-sm font-medium ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>{selectedInterview.company}</p></div>
-                </div>
-                <button onClick={() => setSelectedInterview(null)} className={`p-2 rounded-lg transition flex-shrink-0 ${isDark ? 'hover:bg-slate-800 text-slate-400' : 'hover:bg-slate-100 text-slate-500'}`}><X className="h-5 w-5" /></button>
-              </div>
-              <div className="p-6 space-y-5">
-                <span className={`inline-flex items-center gap-1.5 text-sm font-semibold px-3 py-1.5 rounded-full border ${status.bg} ${status.darkBg}`}><StatusIcon className={`h-4 w-4 ${status.color}`} /><span className={status.color}>{status.label}</span></span>
-                <div className="grid grid-cols-2 gap-3">
-                  {[{ icon: CalendarDays, label: 'Date', value: getDateLabel(selectedInterview.date) },{ icon: Clock, label: 'Time', value: selectedInterview.time },{ icon: Timer, label: 'Duration', value: selectedInterview.duration },{ icon: TypeIcon, label: 'Mode', value: selectedInterview.type === 'in-person' ? 'In Person' : selectedInterview.type.charAt(0).toUpperCase() + selectedInterview.type.slice(1) }].map((item, i) => (
-                    <div key={i} className={`rounded-xl p-3 ${isDark ? 'bg-slate-800' : 'bg-slate-50'}`}>
-                      <div className="flex items-center gap-1.5 mb-1"><item.icon className={`h-3.5 w-3.5 ${isDark ? 'text-slate-400' : 'text-slate-400'}`} /><span className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-400'}`}>{item.label}</span></div>
-                      <p className={`text-sm font-semibold capitalize ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{item.value}</p>
-                    </div>
-                  ))}
-                </div>
-                <div><h4 className={`text-sm font-semibold mb-1 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Round</h4><p className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>{selectedInterview.round}</p></div>
-                {selectedInterview.interviewer && <div><h4 className={`text-sm font-semibold mb-1 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Interviewer</h4><p className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>{selectedInterview.interviewer}</p></div>}
-                {selectedInterview.location && <div><h4 className={`text-sm font-semibold mb-1 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Location</h4><div className="flex items-start gap-1.5"><MapPin className={`h-4 w-4 mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-400'}`} /><p className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>{selectedInterview.location}</p></div></div>}
-                {selectedInterview.notes && <div><h4 className={`text-sm font-semibold mb-1 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Notes</h4><p className={`text-sm leading-relaxed ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>{selectedInterview.notes}</p></div>}
-              </div>
-              {selectedInterview.status === 'upcoming' && (
-                <div className={`flex items-center justify-end gap-3 p-6 pt-4 border-t ${isDark ? 'border-slate-700' : 'border-slate-200'}`}>
-                  <button onClick={() => { setSelectedInterview(null); setActiveMeeting(selectedInterview); }} className="flex items-center gap-2 px-6 py-2.5 bg-[#1a73e8] hover:bg-[#1765cc] text-white text-sm font-semibold rounded-full shadow-lg transition-all hover:-translate-y-0.5">
-                    <Video className="h-4 w-4" />Join Meeting
-                  </button>
-                </div>
-              )}
-            </div>
+      {/* Empty state */}
+      {!loading && upcoming.length === 0 && (
+        <div className={`${card} flex flex-col items-center justify-center py-20 text-center`}>
+          <div className={`mb-4 flex h-20 w-20 items-center justify-center rounded-2xl ${isDark ? 'bg-indigo-500/10' : 'bg-indigo-50'}`}>
+            <Video className={`h-10 w-10 ${isDark ? 'text-indigo-400' : 'text-indigo-500'}`} />
           </div>
-        );
-      })()}
+          <h3 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>No upcoming meetings</h3>
+          <p className={`mt-2 max-w-sm text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+            When a recruiter schedules an interview with you, it will appear here with a "Join" button.
+          </p>
+        </div>
+      )}
     </div>
   );
 }
