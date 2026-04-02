@@ -109,11 +109,6 @@ export function Login() {
       navigate(signedInUser.role === 'recruiter' ? '/recruiter/dashboard' : '/dashboard');
     } catch (error: any) {
       const message = error?.message || 'Login failed';
-      // If email not verified, redirect to verify page
-      if (message.includes('verify your email')) {
-        navigate(`/verify-email?email=${encodeURIComponent(email)}&role=${encodeURIComponent(role)}`);
-        return;
-      }
       setErrorMsg(message);
       showToast('Sign in failed: ' + message, 'error');
     } finally {

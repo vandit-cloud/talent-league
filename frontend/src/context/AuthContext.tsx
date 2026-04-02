@@ -173,6 +173,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     const userData = normalizeAuthUser(data);
+    setAuthSession(userData, data.token);
     return userData;
   };
 

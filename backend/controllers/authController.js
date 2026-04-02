@@ -257,58 +257,35 @@ const registerUser = async (req, res) => {
         if (isDbConnected()) {
             const userExists = await User.findOne({ email });
             if (userExists) {
-                if (userExists.emailVerified) {
-                    const roleMsg = userExists.role ? `This email is already registered as a ${userExists.role}. Please log in.` : 'User already exists';
-                    return res.status(400).json({ message: roleMsg });
-                }
-                // User exists but not verified - resend OTP
-                await sendSignupOtp(userExists, userExists.name);
-                return res.status(201).json({
-                    emailVerificationPending: true,
-                    email: userExists.email,
-                    message: 'Verification OTP resent to your email.'
-                });
+                const roleMsg = userExists.role ? `This email is already registered as a ${userExists.role}. Please log in.` : 'User already exists';
+                return res.status(400).json({ message: roleMsg });
             }
 
-            const user = await User.create({ name, email, password, role, emailVerified: false, verificationStatus: 'not_required' });
-            await sendSignupOtp(user, name);
+            const user = await User.create({ name, email, password, role, emailVerified: true, verificationStatus: 'not_required' });
 
-            return res.status(201).json({
-                emailVerificationPending: true,
-                email: user.email,
-                message: 'Account created. Please verify your email with the OTP sent.'
-            });
+            return res.status(201).json(buildUserPayload(user, {
+                token: generateToken(user._id),
+                mode: 'online'
+            }));
         } else {
             // OFFLINE MODE
             const userExists = offlineStore.findUserByEmail(email);
             if (userExists) {
-                if (userExists.emailVerified) {
-                    const roleMsg = userExists.role ? `This email is already registered as a ${userExists.role}. Please log in.` : 'User already exists (offline storage)';
-                    return res.status(400).json({ message: roleMsg });
-                }
-                // Not verified - resend OTP
-                await sendSignupOtp(userExists, userExists.name);
-                return res.status(201).json({
-                    emailVerificationPending: true,
-                    email: userExists.email,
-                    message: 'Verification OTP resent to your email.'
-                });
+                const roleMsg = userExists.role ? `This email is already registered as a ${userExists.role}. Please log in.` : 'User already exists (offline storage)';
+                return res.status(400).json({ message: roleMsg });
             }
 
             const salt = await bcrypt.genSalt(BCRYPT_SALT_ROUNDS);
             const hashedPassword = await bcrypt.hash(password, salt);
 
             const user = offlineStore.addUser({
-                name, email, password: hashedPassword, role, emailVerified: false, verificationStatus: 'not_required'
+                name, email, password: hashedPassword, role, emailVerified: true, verificationStatus: 'not_required'
             });
 
-            await sendSignupOtp(user, name);
-
-            return res.status(201).json({
-                emailVerificationPending: true,
-                email: user.email,
-                message: 'Account created. Please verify your email with the OTP sent.'
-            });
+            return res.status(201).json(buildUserPayload(user, {
+                token: generateToken(user._id),
+                mode: 'offline'
+            }));
         }
     } catch (err) {
         console.error('Registration error:', err);
@@ -420,12 +397,10 @@ const loginUser = async (req, res) => {
             // ONLINE MODE (MongoDB)
             const user = await User.findOne({ email }).select('+password');
             if (user) {
+                // Auto-verify any unverified accounts on login
                 if (!user.emailVerified) {
-                    return res.status(403).json({
-                        message: 'Please verify your email first.',
-                        emailVerificationPending: true,
-                        email: user.email
-                    });
+                    user.emailVerified = true;
+                    await user.save();
                 }
                 if (role && user.role && user.role !== role) {
                     return res.status(401).json({ message: `This account is registered as a ${user.role}. Please go to the ${user.role} login page.` });
@@ -441,12 +416,10 @@ const loginUser = async (req, res) => {
             // OFFLINE MODE (JSON Fallback)
             const user = offlineStore.findUserByEmail(email);
             if (user) {
+                // Auto-verify any unverified accounts on login
                 if (!user.emailVerified) {
-                    return res.status(403).json({
-                        message: 'Please verify your email first.',
-                        emailVerificationPending: true,
-                        email: user.email
-                    });
+                    offlineStore.updateUser(user._id, { emailVerified: true });
+                    user.emailVerified = true;
                 }
                 if (role && user.role && user.role !== role) {
                     return res.status(401).json({ message: `This account is registered as a ${user.role}. Please go to the ${user.role} login page.` });
@@ -785,17 +758,8 @@ const registerRecruiter = async (req, res) => {
             // Check email uniqueness
             const userExists = await User.findOne({ email });
             if (userExists) {
-                if (userExists.emailVerified) {
-                    const roleMsg = userExists.role ? `This email is already registered as a ${userExists.role}. Please log in.` : 'User already exists';
-                    return res.status(400).json({ message: roleMsg });
-                }
-                // User exists but not verified - resend OTP
-                await sendSignupOtp(userExists, userExists.name);
-                return res.status(201).json({
-                    emailVerificationPending: true,
-                    email: userExists.email,
-                    message: 'Verification OTP resent to your email.'
-                });
+                const roleMsg = userExists.role ? `This email is already registered as a ${userExists.role}. Please log in.` : 'User already exists';
+                return res.status(400).json({ message: roleMsg });
             }
 
             // Check GST/CIN uniqueness
@@ -824,30 +788,19 @@ const registerRecruiter = async (req, res) => {
                 udyamNumber: udyam || undefined,
                 companyVerified: false,
                 verificationStatus: 'pending',
-                emailVerified: false
+                emailVerified: true
             });
 
-            await sendSignupOtp(user, name);
-
-            return res.status(201).json({
-                emailVerificationPending: true,
-                email: user.email,
-                message: 'Recruiter account created. Please verify your email with the OTP sent.'
-            });
+            return res.status(201).json(buildUserPayload(user, {
+                token: generateToken(user._id),
+                mode: 'online'
+            }));
         } else {
             // OFFLINE MODE
             const userExists = offlineStore.findUserByEmail(email);
             if (userExists) {
-                if (userExists.emailVerified) {
-                    const roleMsg = userExists.role ? `This email is already registered as a ${userExists.role}. Please log in.` : 'User already exists (offline storage)';
-                    return res.status(400).json({ message: roleMsg });
-                }
-                await sendSignupOtp(userExists, userExists.name);
-                return res.status(201).json({
-                    emailVerificationPending: true,
-                    email: userExists.email,
-                    message: 'Verification OTP resent to your email.'
-                });
+                const roleMsg = userExists.role ? `This email is already registered as a ${userExists.role}. Please log in.` : 'User already exists (offline storage)';
+                return res.status(400).json({ message: roleMsg });
             }
 
             const salt = await bcrypt.genSalt(BCRYPT_SALT_ROUNDS);
@@ -864,16 +817,13 @@ const registerRecruiter = async (req, res) => {
                 udyamNumber: udyam || undefined,
                 companyVerified: false,
                 verificationStatus: 'pending',
-                emailVerified: false
+                emailVerified: true
             });
 
-            await sendSignupOtp(user, name);
-
-            return res.status(201).json({
-                emailVerificationPending: true,
-                email: user.email,
-                message: 'Recruiter account created. Please verify your email with the OTP sent.'
-            });
+            return res.status(201).json(buildUserPayload(user, {
+                token: generateToken(user._id),
+                mode: 'offline'
+            }));
         }
     } catch (err) {
         console.error('Recruiter registration error:', err);

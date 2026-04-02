@@ -103,7 +103,7 @@ export function Signup() {
       if (result?.emailVerificationPending) {
         navigate(`/verify-email?email=${encodeURIComponent(email)}&role=candidate`);
       } else {
-        navigate(`/login?registered=1&role=candidate&email=${encodeURIComponent(email)}`);
+        navigate('/dashboard');
       }
     } catch (error) {
       console.error('Signup failed:', error);
