@@ -7,13 +7,15 @@ const createTransporter = async () => {
     if (emailUser && emailPass) {
         return {
             transporter: nodemailer.createTransport({
-                service: 'gmail',
+                host: 'smtp.gmail.com',
+                port: 465,
+                secure: true,
                 auth: {
                     user: emailUser,
                     pass: emailPass
                 }
             }),
-            from: emailUser
+            from: `"TalentLeague" <${emailUser}>`
         };
     }
 
@@ -33,18 +35,24 @@ const createTransporter = async () => {
 };
 
 const sendHtmlEmail = async ({ to, subject, html }) => {
-    const { transporter, from } = await createTransporter();
-    const info = await transporter.sendMail({
-        from,
-        to,
-        subject,
-        html
-    });
-
-    return {
-        info,
-        previewUrl: nodemailer.getTestMessageUrl(info) || undefined
-    };
+    try {
+        const { transporter, from } = await createTransporter();
+        console.log(`[Email] Sending to: ${to}, subject: "${subject}", from: ${from}`);
+        const info = await transporter.sendMail({
+            from,
+            to,
+            subject,
+            html
+        });
+        console.log(`[Email] Sent successfully. messageId: ${info.messageId}`);
+        return {
+            info,
+            previewUrl: nodemailer.getTestMessageUrl(info) || undefined
+        };
+    } catch (error) {
+        console.error(`[Email] FAILED to send to ${to}:`, error.message);
+        throw error;
+    }
 };
 
 module.exports = {
