@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { User, UserRole } from '../types';
 import { getApiUrl } from '../lib/api/base';
 
@@ -10,6 +10,15 @@ interface AuthContextType {
   login: (email: string, password: string, role?: UserRole) => Promise<User>;
   logout: () => void;
   signup: (name: string, email: string, password: string, role: UserRole) => Promise<User>;
+  signupRecruiter: (data: {
+    name: string;
+    email: string;
+    password: string;
+    companyName: string;
+    gstNumber?: string;
+    cinNumber?: string;
+    udyamNumber?: string;
+  }) => Promise<any>;
   updateProfile: (profile: {
     name: string;
     email: string;
@@ -17,6 +26,7 @@ interface AuthContextType {
     location?: string;
     avatar?: string;
   }) => Promise<User>;
+  isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -27,6 +37,12 @@ const normalizeAuthUser = (data: any): User => ({
   avatar: data.avatar || undefined,
   contactInfo: data.contactInfo || {},
   onboardingComplete: data.onboardingComplete || false,
+  companyName: data.companyName || undefined,
+  gstNumber: data.gstNumber || undefined,
+  cinNumber: data.cinNumber || undefined,
+  udyamNumber: data.udyamNumber || undefined,
+  companyVerified: data.companyVerified || false,
+  verificationStatus: data.verificationStatus || 'not_required',
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -38,25 +54,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return null;
     }
   });
+  const [isLoading, setIsLoading] = useState(false);
+
+  // SECURITY: viewRole is derived from the server-validated user.role, not localStorage
   const [viewRole, setViewRoleState] = useState<UserRole>(() => {
     try {
-      const saved = localStorage.getItem('viewRole') as UserRole | null;
       const savedUser = localStorage.getItem('user');
       const userObj = savedUser ? JSON.parse(savedUser) : null;
-      
-      // If we have a saved viewRole, trust it ONLY if it matches the user's base capabilities
-      if (saved === 'candidate' || saved === 'recruiter' || saved === 'admin') {
-        return saved;
-      }
-      
-      // Fallback: Use the actual role from the user object if available
       if (userObj && userObj.role) {
         return userObj.role as UserRole;
       }
-      
       return 'candidate';
-    } catch (err) {
-      console.error('Error initializing viewRole:', err);
+    } catch {
       return 'candidate';
     }
   });
@@ -66,18 +75,64 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('viewRole', role);
   };
 
-  const setAuthSession = (authUser: User, token?: string | null) => {
+  const setAuthSession = useCallback((authUser: User, token?: string | null) => {
     setUser(authUser);
     localStorage.setItem('user', JSON.stringify(authUser));
 
     if (authUser.role) {
-      setViewRole(authUser.role);
+      setViewRoleState(authUser.role);
+      localStorage.setItem('viewRole', authUser.role);
     }
 
     if (token) {
       localStorage.setItem('token', token);
     }
-  };
+  }, []);
+
+  // SECURITY: On app load, verify the token with the server via /auth/me
+  // This ensures tampered localStorage data is rejected
+  useEffect(() => {
+    const verifySession = async () => {
+      const token = localStorage.getItem('token');
+      if (!token || !user) return;
+
+      setIsLoading(true);
+      try {
+        const response = await fetch(getApiUrl('/auth/me'), {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          // Token is invalid or expired - force logout
+          console.warn('Session verification failed, logging out.');
+          setUser(null);
+          localStorage.removeItem('user');
+          localStorage.removeItem('token');
+          localStorage.removeItem('viewRole');
+          return;
+        }
+
+        const data = await response.json();
+        const freshUser = normalizeAuthUser(data);
+
+        // Update local state with server-validated data
+        setUser(freshUser);
+        localStorage.setItem('user', JSON.stringify(freshUser));
+        setViewRoleState(freshUser.role);
+        localStorage.setItem('viewRole', freshUser.role);
+      } catch {
+        // Network error - keep existing session but don't trust it for role checks
+        console.warn('Could not verify session - network error');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    verifySession();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const login = async (email: string, password: string, role?: UserRole) => {
     const response = await fetch(getApiUrl('/auth/login'), {
@@ -99,11 +154,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return userData;
   };
 
-  const signup = async (name: string, email: string, password: string, role: UserRole) => {
+  const signup = async (name: string, email: string, password: string, _role: UserRole): Promise<any> => {
+    // SECURITY: Candidate signup only - role is always 'candidate' on backend
     const response = await fetch(getApiUrl('/auth/register'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password, role }),
+      body: JSON.stringify({ name, email, password }),
     });
 
     const data = await response.json();
@@ -112,8 +168,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error(data.message || 'Signup failed');
     }
 
+    if (data.emailVerificationPending) {
+      return data;
+    }
+
     const userData = normalizeAuthUser(data);
     return userData;
+  };
+
+  const signupRecruiter = async (formData: {
+    name: string;
+    email: string;
+    password: string;
+    companyName: string;
+    gstNumber?: string;
+    cinNumber?: string;
+    udyamNumber?: string;
+  }): Promise<any> => {
+    const response = await fetch(getApiUrl('/auth/register-recruiter'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Recruiter signup failed');
+    }
+
+    return data;
   };
 
   const updateProfile = async (profile: {
@@ -153,7 +237,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, viewRole, setViewRole, setAuthSession, login, logout, signup, updateProfile }}>
+    <AuthContext.Provider value={{ user, viewRole, setViewRole, setAuthSession, login, logout, signup, signupRecruiter, updateProfile, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

@@ -2,7 +2,9 @@ const AssessmentTemplate = require('../models/AssessmentTemplate');
 
 const createTemplate = async (req, res) => {
     try {
-        const { name, role, type, skills, rounds, minScore, recruiterId, description } = req.body;
+        const { name, role, type, skills, rounds, minScore, description } = req.body;
+        // SECURITY: Always use authenticated user's ID
+        const recruiterId = req.user._id;
         const template = new AssessmentTemplate({
             name,
             role,
@@ -34,6 +36,17 @@ const getTemplates = async (req, res) => {
 const deleteTemplate = async (req, res) => {
     try {
         const { id } = req.params;
+        const template = await AssessmentTemplate.findById(id);
+
+        if (!template) {
+            return res.status(404).json({ message: 'Template not found' });
+        }
+
+        // SECURITY: Verify ownership
+        if (req.user.role !== 'admin' && String(template.recruiterId) !== String(req.user._id)) {
+            return res.status(403).json({ message: 'You can only delete your own templates.' });
+        }
+
         await AssessmentTemplate.findByIdAndDelete(id);
         res.json({ message: 'Template deleted successfully' });
     } catch (error) {

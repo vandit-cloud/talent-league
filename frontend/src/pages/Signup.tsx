@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import {
   ArrowRight,
   Brain,
-  BriefcaseBusiness,
   Check,
   CheckCircle2,
   Eye,
@@ -27,13 +26,6 @@ const roleConfig = {
     subtitle: 'Upload resumes, take proctored tests, and review your results in one place.',
     icon: UserRound,
     highlights: ['TalentLeague AI scan', 'MCQ + coding rounds', 'Detailed result dashboard']
-  },
-  recruiter: {
-    label: 'Recruiter',
-    title: 'Create a hiring workspace built for speed',
-    subtitle: 'Manage candidates, compare verified results, and review exam performance with clarity.',
-    icon: BriefcaseBusiness,
-    highlights: ['Candidate pipeline', 'Shared assessments', 'Recruiter result review']
   }
 } as const;
 
@@ -64,25 +56,24 @@ const getStrengthState = (password: string) => {
 };
 
 export function Signup() {
-  const params = new URLSearchParams(window.location.search);
-  const initialRole = (params.get('role') === 'recruiter' ? 'recruiter' : 'candidate') as 'candidate' | 'recruiter';
-
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState<'candidate' | 'recruiter'>(initialRole);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [formError, setFormError] = useState('');
+
+  // SECURITY: This page only creates candidate accounts
+  const role = 'candidate' as const;
 
   const { signup } = useAuth();
   const { resolvedTheme } = useTheme();
   const navigate = useNavigate();
 
   const isDark = resolvedTheme === 'dark';
-  const activeRole = roleConfig[role];
+  const activeRole = roleConfig.candidate;
   const ActiveRoleIcon = activeRole.icon;
   const passwordRules = useMemo(() => passwordChecks(password), [password]);
   const strengthState = useMemo(() => getStrengthState(password), [password]);
@@ -106,8 +97,12 @@ export function Signup() {
     setIsLoading(true);
 
     try {
-      await signup(name, email, password, role);
-      navigate(`/login?registered=1&role=${encodeURIComponent(role)}&email=${encodeURIComponent(email)}`);
+      const result: any = await signup(name, email, password, role);
+      if (result?.emailVerificationPending) {
+        navigate(`/verify-email?email=${encodeURIComponent(email)}&role=candidate`);
+      } else {
+        navigate(`/login?registered=1&role=candidate&email=${encodeURIComponent(email)}`);
+      }
     } catch (error) {
       console.error('Signup failed:', error);
       const message = error instanceof Error ? error.message : 'Unknown error';
@@ -223,22 +218,14 @@ export function Signup() {
             </div>
           ) : null}
 
-          <div className="mb-6 grid grid-cols-2 gap-3">
-            {(['candidate', 'recruiter'] as const).map((item) => (
-              <button
-                key={item}
-                type="button"
-                onClick={() => setRole(item)}
-                className={`rounded-2xl border px-4 py-3 text-sm font-semibold transition ${role === item
-                    ? 'border-indigo-500 bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/25'
-                    : isDark
-                      ? 'border-white/10 bg-white/5 text-slate-300 hover:bg-white/10'
-                      : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
-                  }`}
-              >
-                {item === 'candidate' ? 'Candidate signup' : 'Recruiter signup'}
+          {/* Candidate-only signup - Recruiters go to /recruiter-signup */}
+          <div className={`mb-6 rounded-2xl border px-4 py-3 ${isDark ? 'border-indigo-400/30 bg-indigo-500/10' : 'border-indigo-200 bg-indigo-50'}`}>
+            <p className={`text-sm ${isDark ? 'text-indigo-200' : 'text-indigo-700'}`}>
+              Are you a recruiter?{' '}
+              <button type="button" onClick={() => navigate('/recruiter-signup')} className="font-semibold underline">
+                Register your company here
               </button>
-            ))}
+            </p>
           </div>
 
           <form className="space-y-5" onSubmit={handleSubmit}>

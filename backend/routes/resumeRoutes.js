@@ -20,10 +20,12 @@ const upload = multer({
     }
 });
 
+const { protect } = require('../middleware/auth');
+
 // @route   POST /api/resume/analyze
 // @desc    Upload and analyze resume using AI
-// @access  Public
-router.post('/analyze', (req, res, next) => {
+// @access  Private
+router.post('/analyze', protect, (req, res, next) => {
     console.log('📥 Route /analyze hit - processing upload...');
     next();
 }, upload.single('resume'), (err, req, res, next) => {

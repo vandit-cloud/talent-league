@@ -1,11 +1,16 @@
 import { lazy, Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CandidateLayout } from './components/CandidateLayout';
 import { ProctoringWrapper } from './components/ProctoringWrapper';
 import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
+import { VerifyEmail } from './pages/VerifyEmail';
 import { RecruiterLayout } from './components/RecruiterLayout';
+
+const LandingPage = lazy(() => import('./pages/LandingPage').then(m => ({ default: m.LandingPage })));
+const RecruiterSignup = lazy(() => import('./pages/RecruiterSignup').then(m => ({ default: m.RecruiterSignup })));
+const RecruiterVerificationPending = lazy(() => import('./pages/RecruiterVerificationPending').then(m => ({ default: m.RecruiterVerificationPending })));
 
 const Dashboard = lazy(() => import('./pages/Dashboard').then(m => ({ default: m.Dashboard })));
 const ResumeUpload = lazy(() => import('./pages/ResumeUpload').then(m => ({ default: m.ResumeUpload })));
@@ -37,6 +42,7 @@ const RecruiterAssessmentsAdd = lazy(() => import('./pages/RecruiterAssessmentsA
 const RecruiterCandidateDetails = lazy(() => import('./pages/RecruiterCandidateDetails').then(m => ({ default: m.RecruiterCandidateDetails })));
 const RecruiterJobs = lazy(() => import('./pages/RecruiterJobs').then(m => ({ default: m.RecruiterJobs })));
 const RecruiterSettings = lazy(() => import('./pages/RecruiterSettings').then(m => ({ default: m.RecruiterSettings })));
+const RecruiterInterviews = lazy(() => import('./pages/RecruiterInterviews').then(m => ({ default: m.RecruiterInterviews })));
 const AssessmentManagement = lazy(() => import('./pages/AssessmentManagement').then(m => ({ default: m.default })));
 const OAuthCallback = lazy(() => import('./pages/OAuthCallback').then(m => ({ default: m.OAuthCallback })));
 const MonitoringCamera = lazy(() => import('./pages/MonitoringCamera').then(m => ({ default: m.default })));
@@ -57,30 +63,33 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function CandidateRoute({ children }: { children: React.ReactNode }) {
-  const { user, viewRole } = useAuth();
-  const location = useLocation();
+  const { user } = useAuth();
 
   if (!user) return <Navigate to="/login" replace />;
-  
-  // If the user is a recruiter viewing as a recruiter, don't let them stay in candidate routes
-  if (viewRole === 'recruiter' && user.role === 'recruiter') {
+
+  // SECURITY: Use user.role from server, not viewRole from localStorage
+  if (user.role === 'recruiter') {
     return <Navigate to="/recruiter/dashboard" replace />;
   }
-  
+
   return <>{children}</>;
 }
 
 function RecruiterRoute({ children }: { children: React.ReactNode }) {
-  const { user, viewRole } = useAuth();
-  const location = useLocation();
+  const { user } = useAuth();
 
   if (!user) return <Navigate to="/login" replace />;
-  
-  // If the user is a candidate or viewing as a candidate, don't let them stay in recruiter routes
-  if (viewRole === 'candidate' && user.role === 'candidate') {
+
+  // SECURITY: Use user.role from server, not viewRole from localStorage
+  if (user.role !== 'recruiter' && user.role !== 'admin') {
     return <Navigate to="/dashboard" replace />;
   }
-  
+
+  // Block unverified recruiters from full features - redirect to verification pending page
+  if (!user.companyVerified && user.verificationStatus !== 'verified') {
+    return <Navigate to="/recruiter/verification-pending" replace />;
+  }
+
   return <>{children}</>;
 }
 
@@ -89,7 +98,7 @@ function AppRoutes() {
 
   // Determine default route based on user role
   const getDefaultRoute = () => {
-    if (!user) return "/signup";
+    if (!user) return "/landing";
     if (user.role === 'recruiter') return "/recruiter/dashboard";
     return "/dashboard";
   };
@@ -98,8 +107,13 @@ function AppRoutes() {
     <>
       <Suspense fallback={<PageLoader />}>
         <Routes>
+          {/* Landing page — unauthenticated users see scroll landing, authenticated users redirect to dashboard */}
+          <Route path="/landing" element={user ? <Navigate to={getDefaultRoute()} /> : <LandingPage />} />
+
           <Route path="/login" element={user ? <Navigate to={getDefaultRoute()} /> : <Login />} />
           <Route path="/signup" element={user ? <Navigate to={getDefaultRoute()} /> : <Signup />} />
+          <Route path="/recruiter-signup" element={user ? <Navigate to={getDefaultRoute()} /> : <RecruiterSignup />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/forgot-password" element={user ? <Navigate to={getDefaultRoute()} /> : <ForgotPassword />} />
           <Route path="/reset-password" element={user ? <Navigate to={getDefaultRoute()} /> : <ResetPassword />} />
           <Route path="/oauth/callback" element={<OAuthCallback />} />
@@ -119,7 +133,7 @@ function AppRoutes() {
           <Route path="/test-exam" element={<ProtectedRoute><TakeExam /></ProtectedRoute>} />
 
           {/* Candidate Routes with Sidebar Layout */}
-          <Route path="/" element={<CandidateRoute><CandidateLayout /></CandidateRoute>}>
+          <Route path="/" element={user ? <CandidateRoute><CandidateLayout /></CandidateRoute> : <Navigate to="/landing" />}>
             <Route index element={<Dashboard />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="resume-upload" element={<ResumeUpload />} />
@@ -141,7 +155,12 @@ function AppRoutes() {
             <Route path="skill-matching" element={<SkillMatching />} />
           </Route>
 
-          {/* Recruiter Routes */}
+          {/* Recruiter Verification Pending (accessible to unverified recruiters) */}
+          <Route path="/recruiter/verification-pending" element={
+            <ProtectedRoute><RecruiterVerificationPending /></ProtectedRoute>
+          } />
+
+          {/* Recruiter Routes (requires verified recruiter) */}
           <Route path="/recruiter" element={<RecruiterRoute><RecruiterLayout /></RecruiterRoute>}>
             <Route index element={<RecruiterDashboard />} />
             <Route path="dashboard" element={<RecruiterDashboard />} />
@@ -149,6 +168,7 @@ function AppRoutes() {
             <Route path="candidates" element={<RecruiterCandidateDetails />} />
             <Route path="add-candidate" element={<Candidates />} />
             <Route path="jobs" element={<RecruiterJobs />} />
+            <Route path="interviews" element={<RecruiterInterviews />} />
             <Route path="settings" element={<RecruiterSettings />} />
             <Route path="assessment-management" element={<AssessmentManagement />} />
           </Route>

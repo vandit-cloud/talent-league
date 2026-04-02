@@ -12,35 +12,23 @@ const {
     listMCQTests,
     getRecruiterStats
 } = require('../controllers/mcqController');
+const { protect, authorize, requireVerified } = require('../middleware/auth');
 
-// Get stats for recruiter dashboard
-router.get('/stats', getRecruiterStats);
+// Recruiter-only routes (require verified company)
+router.get('/stats', protect, authorize('recruiter', 'admin'), getRecruiterStats);
+router.post('/create', protect, authorize('recruiter', 'admin'), requireVerified, createAndSendMCQTest);
+router.get('/all', protect, authorize('recruiter', 'admin'), listMCQTests);
 
-// Create and send MCQ test via email
-router.post('/create', createAndSendMCQTest);
-
-// List tests (basic admin/recruiter view)
-router.get('/all', listMCQTests);
-
-// Verify test token
+// Test-taking routes (token-based, accessible by candidates via unique link)
+// These use their own token-based auth (test token), so no JWT protect needed
 router.get('/verify/:token', verifyTestToken);
-
-// Get test questions (without correct answers)
 router.get('/questions/:token', getTestQuestions);
-
-// Submit test answers
 router.post('/submit/:token', submitTest);
-
-// Submit phase 2 answers
 router.post('/phase2-submit/:token', submitPhase2);
 
-// Get test result
+// Result routes
 router.get('/result/:token', getTestResult);
-
-// Get Phase 2 resume/assessment context by token
 router.get('/phase2-context/:token', getPhase2Context);
-
-// Get combined Phase 1 + Phase 2 result
 router.get('/assessment-result/:token', getAssessmentResult);
 
 module.exports = router;

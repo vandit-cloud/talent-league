@@ -6,7 +6,9 @@ const isDbConnected = () => mongoose.connection.readyState === 1;
 
 const createJob = async (req, res) => {
     try {
-        const { title, company, department, location, type, experience, salary, description, requirements, recruiterId } = req.body;
+        const { title, company, department, location, type, experience, salary, description, requirements } = req.body;
+        // SECURITY: Always use authenticated user's ID, never trust client-provided recruiterId
+        const recruiterId = req.user._id;
 
         if (isDbConnected()) {
             const job = new Job({ title, company, department, location, type, experience, salary, description, requirements, recruiterId });
@@ -15,7 +17,7 @@ const createJob = async (req, res) => {
         }
 
         // Offline mode
-        const job = offlineJobStore.addJob({ title, company, department, location, type, experience, salary, description, requirements, recruiterId });
+        const job = offlineJobStore.addJob({ title, company, department, location, type, experience, salary, description, requirements, recruiterId: String(recruiterId) });
         res.status(201).json(job);
     } catch (error) {
         res.status(500).json({ message: 'Error creating job', error: error.message });
@@ -52,10 +54,26 @@ const deleteJob = async (req, res) => {
         const { id } = req.params;
 
         if (isDbConnected()) {
+            const job = await Job.findById(id);
+            if (!job) {
+                return res.status(404).json({ message: 'Job not found' });
+            }
+
+            // SECURITY: Verify ownership - only the recruiter who created the job can delete it
+            if (req.user.role !== 'admin' && String(job.recruiterId) !== String(req.user._id)) {
+                return res.status(403).json({ message: 'You can only delete your own job postings.' });
+            }
+
             await Job.findByIdAndDelete(id);
             return res.json({ message: 'Job deleted successfully' });
         }
 
+        // Offline mode - check ownership
+        const allJobs = offlineJobStore.getJobs();
+        const offlineJob = allJobs.find(j => String(j._id) === String(id));
+        if (offlineJob && req.user.role !== 'admin' && String(offlineJob.recruiterId) !== String(req.user._id)) {
+            return res.status(403).json({ message: 'You can only delete your own job postings.' });
+        }
         offlineJobStore.deleteJob(id);
         res.json({ message: 'Job deleted successfully' });
     } catch (error) {

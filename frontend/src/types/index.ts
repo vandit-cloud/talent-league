@@ -1,5 +1,7 @@
 export type UserRole = 'candidate' | 'recruiter' | 'admin';
 
+export type VerificationStatus = 'not_required' | 'pending' | 'verified' | 'rejected';
+
 export interface User {
   id: string;
   _id?: string;
@@ -14,6 +16,12 @@ export interface User {
     location?: string;
   };
   onboardingComplete: boolean;
+  companyName?: string;
+  gstNumber?: string;
+  cinNumber?: string;
+  udyamNumber?: string;
+  companyVerified?: boolean;
+  verificationStatus?: VerificationStatus;
 }
 
 export interface Candidate {

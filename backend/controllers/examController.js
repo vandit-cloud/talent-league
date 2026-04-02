@@ -23,7 +23,9 @@ const getQuestions = async (req, res) => {
 // @access  Public
 const submitResult = async (req, res) => {
     const result = new Result({
-        candidateName: req.body.candidateName,
+        // SECURITY: Use authenticated user's identity, not client-provided
+        candidateId: req.user._id,
+        candidateName: req.user.name || req.body.candidateName,
         score: req.body.score,
         totalQuestions: req.body.totalQuestions,
         answers: req.body.answers,

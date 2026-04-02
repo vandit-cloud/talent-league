@@ -105,8 +105,13 @@ export function Login() {
     try {
       const signedInUser = await login(email, password, role);
       navigate(signedInUser.role === 'recruiter' ? '/recruiter/dashboard' : '/dashboard');
-    } catch (error) {
-      const message = (error as Error)?.message || 'Login failed';
+    } catch (error: any) {
+      const message = error?.message || 'Login failed';
+      // If email not verified, redirect to verify page
+      if (message.includes('verify your email')) {
+        navigate(`/verify-email?email=${encodeURIComponent(email)}&role=${encodeURIComponent(role)}`);
+        return;
+      }
       setErrorMsg(message);
       alert('Sign in failed: ' + message);
     } finally {
@@ -434,14 +439,14 @@ export function Login() {
                 onClick={() => navigate('/signup')}
                 className={`font-semibold transition-colors ${isDark ? 'text-indigo-300 hover:text-white' : 'text-indigo-600 hover:text-indigo-700'}`}
               >
-                Create account
+                Candidate signup
               </button>
               <span className={`mx-2 ${isDark ? 'text-slate-600' : 'text-slate-400'}`}>|</span>
               <button
-                onClick={() => navigate('/signup?role=recruiter')}
+                onClick={() => navigate('/recruiter-signup')}
                 className={`font-semibold transition-colors ${isDark ? 'text-indigo-300 hover:text-white' : 'text-indigo-600 hover:text-indigo-700'}`}
               >
-                Create recruiter account
+                Recruiter signup (with GST/CIN)
               </button>
             </p>
           </div>

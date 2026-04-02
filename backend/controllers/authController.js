@@ -109,6 +109,10 @@ const cleanOptionalString = (value, maxLength) => {
     return value.trim().slice(0, maxLength);
 };
 
+const GST_REGEX = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+const CIN_REGEX = /^[UL][0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$/;
+const UDYAM_REGEX = /^UDYAM-[A-Z]{2}-\d{2}-\d{7}$/;
+
 const buildUserPayload = (user, extra = {}) => ({
     _id: String(user?._id || ''),
     name: user?.name || '',
@@ -120,6 +124,12 @@ const buildUserPayload = (user, extra = {}) => ({
         location: user?.location || user?.contactInfo?.location || ''
     },
     onboardingComplete: Boolean(user?.onboardingComplete),
+    companyName: user?.companyName || undefined,
+    gstNumber: user?.gstNumber || undefined,
+    cinNumber: user?.cinNumber || undefined,
+    udyamNumber: user?.udyamNumber || undefined,
+    companyVerified: Boolean(user?.companyVerified),
+    verificationStatus: user?.verificationStatus || 'not_required',
     ...extra
 });
 
@@ -183,9 +193,55 @@ const isEmailAvailableForUser = async (email, currentUserId) => {
 // @desc    Register a new user
 // @route   POST /api/auth/register
 // @access  Public
+const SIGNUP_OTP_VALIDITY_MS = 10 * 60 * 1000; // 10 minutes
+
+const buildSignupOtpEmailHtml = (otp, name) => `
+    <div style="font-family: 'Segoe UI', Tahoma, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 16px;">
+        <div style="background: #ffffff; border-radius: 12px; padding: 32px; text-align: center;">
+            <h1 style="margin: 0 0 8px; font-size: 24px; color: #1e1b4b;">Verify Your Email</h1>
+            <p style="margin: 0 0 24px; color: #64748b; font-size: 14px;">Hi ${name}, welcome to TalentLeague!</p>
+            <p style="margin: 0 0 8px; color: #475569; font-size: 14px;">Your verification code is:</p>
+            <div style="background: #f1f5f9; border-radius: 12px; padding: 20px; margin: 16px 0;">
+                <span style="font-size: 36px; font-weight: 700; letter-spacing: 8px; color: #4f46e5;">${otp}</span>
+            </div>
+            <p style="margin: 16px 0 0; color: #94a3b8; font-size: 12px;">This code expires in 10 minutes.</p>
+            <p style="margin: 8px 0 0; color: #94a3b8; font-size: 12px;">If you didn't create an account, ignore this email.</p>
+        </div>
+    </div>
+`;
+
+const sendSignupOtp = async (user, name) => {
+    const otp = generateResetOtp();
+    const hashedOtp = hashValue(otp);
+    const expires = new Date(Date.now() + SIGNUP_OTP_VALIDITY_MS);
+
+    if (isDbConnected() && user.save) {
+        user.signupOtpToken = hashedOtp;
+        user.signupOtpExpires = expires;
+        await user.save();
+    } else {
+        offlineStore.updateUser(user._id, {
+            signupOtpToken: hashedOtp,
+            signupOtpExpires: expires.toISOString()
+        });
+    }
+
+    await sendHtmlEmail({
+        to: user.email,
+        subject: 'TalentLeague - Verify Your Email',
+        html: buildSignupOtpEmailHtml(otp, name)
+    });
+
+    return otp;
+};
+
 const registerUser = async (req, res) => {
-    const { name, password, role } = req.body;
+    const { name, password } = req.body;
     const email = req.body.email?.trim().toLowerCase();
+
+    // SECURITY: This endpoint only creates candidate accounts.
+    // Recruiters must use /register-recruiter with GST/CIN verification.
+    const role = 'candidate';
 
     console.log('Registration request received:', { name, email, role });
 
@@ -195,56 +251,155 @@ const registerUser = async (req, res) => {
         }
 
         if (isDbConnected()) {
-            console.log('Using online mode (MongoDB)');
-            // ONLINE MODE (MongoDB)
             const userExists = await User.findOne({ email });
             if (userExists) {
-                console.log('User already exists:', email);
-                const roleMsg = userExists.role ? `This email is already registered as a ${userExists.role}. Please log in.` : 'User already exists';
-                return res.status(400).json({ message: roleMsg });
+                if (userExists.emailVerified) {
+                    const roleMsg = userExists.role ? `This email is already registered as a ${userExists.role}. Please log in.` : 'User already exists';
+                    return res.status(400).json({ message: roleMsg });
+                }
+                // User exists but not verified - resend OTP
+                await sendSignupOtp(userExists, userExists.name);
+                return res.status(201).json({
+                    emailVerificationPending: true,
+                    email: userExists.email,
+                    message: 'Verification OTP resent to your email.'
+                });
             }
 
-            const user = await User.create({ name, email, password, role });
-            console.log('User created successfully:', user._id);
-            if (user) {
-                return res.status(201).json(buildUserPayload(user, {
-                    token: generateToken(user._id),
-                    mode: 'online'
-                }));
-            }
+            const user = await User.create({ name, email, password, role, emailVerified: false, verificationStatus: 'not_required' });
+            await sendSignupOtp(user, name);
+
+            return res.status(201).json({
+                emailVerificationPending: true,
+                email: user.email,
+                message: 'Account created. Please verify your email with the OTP sent.'
+            });
         } else {
-            console.log('Using offline mode (JSON storage)');
-            // OFFLINE MODE (JSON Fallback)
-            console.log('🚨 Database offline: Using offline registration storage');
+            // OFFLINE MODE
             const userExists = offlineStore.findUserByEmail(email);
             if (userExists) {
-                console.log('User already exists in offline storage:', email);
-                const roleMsg = userExists.role ? `This email is already registered as a ${userExists.role}. Please log in.` : 'User already exists (offline storage)';
-                return res.status(400).json({ message: roleMsg });
+                if (userExists.emailVerified) {
+                    const roleMsg = userExists.role ? `This email is already registered as a ${userExists.role}. Please log in.` : 'User already exists (offline storage)';
+                    return res.status(400).json({ message: roleMsg });
+                }
+                // Not verified - resend OTP
+                await sendSignupOtp(userExists, userExists.name);
+                return res.status(201).json({
+                    emailVerificationPending: true,
+                    email: userExists.email,
+                    message: 'Verification OTP resent to your email.'
+                });
             }
 
-            // Hash password manually for offline storage
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(password, salt);
 
             const user = offlineStore.addUser({
-                name,
-                email,
-                password: hashedPassword,
-                role
+                name, email, password: hashedPassword, role, emailVerified: false, verificationStatus: 'not_required'
             });
 
-            console.log('User created in offline storage:', user._id);
-            return res.status(201).json(buildUserPayload(user, {
-                token: generateToken(user._id),
-                mode: 'offline'
-            }));
-        }
+            await sendSignupOtp(user, name);
 
-        console.log('Invalid user data received');
-        res.status(400).json({ message: 'Invalid user data' });
+            return res.status(201).json({
+                emailVerificationPending: true,
+                email: user.email,
+                message: 'Account created. Please verify your email with the OTP sent.'
+            });
+        }
     } catch (err) {
         console.error('Registration error:', err);
+        res.status(500).json({ message: err.message });
+    }
+};
+
+// @desc    Verify signup email OTP
+// @route   POST /api/auth/register/verify-otp
+// @access  Public
+const verifySignupOtp = async (req, res) => {
+    const { otp } = req.body;
+    const email = req.body.email?.trim().toLowerCase();
+
+    if (!email || !otp) {
+        return res.status(400).json({ message: 'Email and OTP are required.' });
+    }
+
+    try {
+        let user = null;
+        let source = 'db';
+
+        if (isDbConnected()) {
+            user = await User.findOne({ email });
+        } else {
+            user = offlineStore.findUserByEmail(email);
+            source = 'offline';
+        }
+
+        if (!user) {
+            return res.status(400).json({ message: 'No account found with this email.' });
+        }
+        if (user.emailVerified) {
+            return res.status(400).json({ message: 'Email is already verified. Please log in.' });
+        }
+
+        const hashedOtp = hashValue(otp);
+        if (user.signupOtpToken !== hashedOtp || !user.signupOtpExpires || new Date(user.signupOtpExpires).getTime() < Date.now()) {
+            return res.status(400).json({ message: 'Invalid or expired OTP. Please try again.' });
+        }
+
+        if (source === 'db') {
+            user.emailVerified = true;
+            user.signupOtpToken = undefined;
+            user.signupOtpExpires = undefined;
+            await user.save();
+        } else {
+            offlineStore.updateUser(user._id, {
+                emailVerified: true,
+                signupOtpToken: undefined,
+                signupOtpExpires: undefined
+            });
+        }
+
+        return res.json({
+            verified: true,
+            message: 'Email verified successfully! You can now log in.',
+            ...buildUserPayload(user, { token: generateToken(user._id), mode: source === 'db' ? 'online' : 'offline' })
+        });
+    } catch (err) {
+        console.error('OTP verification error:', err);
+        res.status(500).json({ message: err.message });
+    }
+};
+
+// @desc    Resend signup OTP
+// @route   POST /api/auth/register/resend-otp
+// @access  Public
+const resendSignupOtp = async (req, res) => {
+    const email = req.body.email?.trim().toLowerCase();
+
+    if (!email) {
+        return res.status(400).json({ message: 'Email is required.' });
+    }
+
+    try {
+        let user = null;
+
+        if (isDbConnected()) {
+            user = await User.findOne({ email });
+        } else {
+            user = offlineStore.findUserByEmail(email);
+        }
+
+        if (!user) {
+            return res.status(400).json({ message: 'No account found with this email.' });
+        }
+        if (user.emailVerified) {
+            return res.status(400).json({ message: 'Email is already verified.' });
+        }
+
+        await sendSignupOtp(user, user.name);
+        return res.json({ message: 'New OTP sent to your email.' });
+    } catch (err) {
+        console.error('Resend OTP error:', err);
         res.status(500).json({ message: err.message });
     }
 };
@@ -261,6 +416,13 @@ const loginUser = async (req, res) => {
             // ONLINE MODE (MongoDB)
             const user = await User.findOne({ email }).select('+password');
             if (user) {
+                if (!user.emailVerified) {
+                    return res.status(403).json({
+                        message: 'Please verify your email first.',
+                        emailVerificationPending: true,
+                        email: user.email
+                    });
+                }
                 if (role && user.role && user.role !== role) {
                     return res.status(401).json({ message: `This account is registered as a ${user.role}. Please go to the ${user.role} login page.` });
                 }
@@ -273,9 +435,15 @@ const loginUser = async (req, res) => {
             }
         } else {
             // OFFLINE MODE (JSON Fallback)
-            console.log('🚨 Database offline: Using offline login verification');
             const user = offlineStore.findUserByEmail(email);
             if (user) {
+                if (!user.emailVerified) {
+                    return res.status(403).json({
+                        message: 'Please verify your email first.',
+                        emailVerificationPending: true,
+                        email: user.email
+                    });
+                }
                 if (role && user.role && user.role !== role) {
                     return res.status(401).json({ message: `This account is registered as a ${user.role}. Please go to the ${user.role} login page.` });
                 }
@@ -520,13 +688,16 @@ const verifyGoogleToken = async (req, res) => {
         let user = await User.findOne({ email });
 
         if (!user) {
+            // SECURITY: Always create OAuth users as candidates.
+            // Recruiters must go through /register-recruiter with GST/CIN verification.
             user = await User.create({
                 name,
                 email,
                 avatar,
-                role: role || 'candidate',
+                role: 'candidate',
                 isSocialOnly: true,
-                emailVerified: true
+                emailVerified: true,
+                verificationStatus: 'not_required'
             });
         } else if (role && user.role !== role) {
             return res.status(401).json({
@@ -564,6 +735,215 @@ const verifyGoogleToken = async (req, res) => {
     }
 };
 
+// @desc    Register a new recruiter with company verification
+// @route   POST /api/auth/register-recruiter
+// @access  Public
+const registerRecruiter = async (req, res) => {
+    const { name, password, companyName, gstNumber, cinNumber, udyamNumber } = req.body;
+    const email = req.body.email?.trim().toLowerCase();
+
+    console.log('Recruiter registration request received:', { name, email, companyName });
+
+    try {
+        if (!PASSWORD_REGEX.test(password || '')) {
+            return res.status(400).json({ message: PASSWORD_RULE_MESSAGE });
+        }
+
+        if (!companyName || !companyName.trim()) {
+            return res.status(400).json({ message: 'Company name is required for recruiter registration.' });
+        }
+
+        const gst = (gstNumber || '').trim().toUpperCase();
+        const cin = (cinNumber || '').trim().toUpperCase();
+        const udyam = (udyamNumber || '').trim().toUpperCase();
+
+        // At least one of GST or CIN is required
+        if (!gst && !cin) {
+            return res.status(400).json({ message: 'Either GST Number or CIN Number is required for recruiter registration.' });
+        }
+
+        // Validate formats
+        if (gst && !GST_REGEX.test(gst)) {
+            return res.status(400).json({ message: 'Invalid GST number format. Expected: 22AAAAA0000A1Z5 (15 characters).' });
+        }
+
+        if (cin && !CIN_REGEX.test(cin)) {
+            return res.status(400).json({ message: 'Invalid CIN number format. Expected: U12345MH2020PTC123456 (21 characters).' });
+        }
+
+        if (udyam && !UDYAM_REGEX.test(udyam)) {
+            return res.status(400).json({ message: 'Invalid UDYAM number format. Expected: UDYAM-MH-00-0000000.' });
+        }
+
+        if (isDbConnected()) {
+            // Check email uniqueness
+            const userExists = await User.findOne({ email });
+            if (userExists) {
+                if (userExists.emailVerified) {
+                    const roleMsg = userExists.role ? `This email is already registered as a ${userExists.role}. Please log in.` : 'User already exists';
+                    return res.status(400).json({ message: roleMsg });
+                }
+                // User exists but not verified - resend OTP
+                await sendSignupOtp(userExists, userExists.name);
+                return res.status(201).json({
+                    emailVerificationPending: true,
+                    email: userExists.email,
+                    message: 'Verification OTP resent to your email.'
+                });
+            }
+
+            // Check GST/CIN uniqueness
+            if (gst) {
+                const gstExists = await User.findOne({ gstNumber: gst });
+                if (gstExists) {
+                    return res.status(400).json({ message: 'This GST number is already registered by another company.' });
+                }
+            }
+
+            if (cin) {
+                const cinExists = await User.findOne({ cinNumber: cin });
+                if (cinExists) {
+                    return res.status(400).json({ message: 'This CIN number is already registered by another company.' });
+                }
+            }
+
+            const user = await User.create({
+                name,
+                email,
+                password,
+                role: 'recruiter',
+                companyName: companyName.trim(),
+                gstNumber: gst || undefined,
+                cinNumber: cin || undefined,
+                udyamNumber: udyam || undefined,
+                companyVerified: false,
+                verificationStatus: 'pending',
+                emailVerified: false
+            });
+
+            await sendSignupOtp(user, name);
+
+            return res.status(201).json({
+                emailVerificationPending: true,
+                email: user.email,
+                message: 'Recruiter account created. Please verify your email with the OTP sent.'
+            });
+        } else {
+            // OFFLINE MODE
+            const userExists = offlineStore.findUserByEmail(email);
+            if (userExists) {
+                if (userExists.emailVerified) {
+                    const roleMsg = userExists.role ? `This email is already registered as a ${userExists.role}. Please log in.` : 'User already exists (offline storage)';
+                    return res.status(400).json({ message: roleMsg });
+                }
+                await sendSignupOtp(userExists, userExists.name);
+                return res.status(201).json({
+                    emailVerificationPending: true,
+                    email: userExists.email,
+                    message: 'Verification OTP resent to your email.'
+                });
+            }
+
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(password, salt);
+
+            const user = offlineStore.addUser({
+                name,
+                email,
+                password: hashedPassword,
+                role: 'recruiter',
+                companyName: companyName.trim(),
+                gstNumber: gst || undefined,
+                cinNumber: cin || undefined,
+                udyamNumber: udyam || undefined,
+                companyVerified: false,
+                verificationStatus: 'pending',
+                emailVerified: false
+            });
+
+            await sendSignupOtp(user, name);
+
+            return res.status(201).json({
+                emailVerificationPending: true,
+                email: user.email,
+                message: 'Recruiter account created. Please verify your email with the OTP sent.'
+            });
+        }
+    } catch (err) {
+        console.error('Recruiter registration error:', err);
+        res.status(500).json({ message: err.message });
+    }
+};
+
+// @desc    Get current authenticated user info
+// @route   GET /api/auth/me
+// @access  Private (requires protect middleware)
+const getMe = async (req, res) => {
+    try {
+        const user = req.user;
+        if (!user) {
+            return res.status(401).json({ message: 'Not authorized.' });
+        }
+
+        return res.json(buildUserPayload(user, { mode: 'online' }));
+    } catch (err) {
+        console.error('Get me error:', err);
+        return res.status(500).json({ message: 'Failed to get user info.' });
+    }
+};
+
+// @desc    Verify a recruiter's company (admin only)
+// @route   POST /api/auth/verify-company
+// @access  Private (admin only, requires protect + authorize('admin'))
+const verifyCompany = async (req, res) => {
+    const { userId, action, note } = req.body;
+
+    try {
+        if (!userId) {
+            return res.status(400).json({ message: 'User ID is required.' });
+        }
+
+        if (!['verify', 'reject'].includes(action)) {
+            return res.status(400).json({ message: 'Action must be "verify" or "reject".' });
+        }
+
+        if (!isDbConnected()) {
+            return res.status(503).json({ message: 'Database not connected. Cannot verify in offline mode.' });
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+
+        if (user.role !== 'recruiter') {
+            return res.status(400).json({ message: 'Only recruiter accounts can be verified.' });
+        }
+
+        if (action === 'verify') {
+            user.companyVerified = true;
+            user.verificationStatus = 'verified';
+            user.verifiedAt = new Date();
+            user.verifiedBy = req.user._id;
+            user.verificationNote = note || 'Approved';
+        } else {
+            user.companyVerified = false;
+            user.verificationStatus = 'rejected';
+            user.verificationNote = note || 'Rejected';
+        }
+
+        await user.save();
+
+        return res.json({
+            message: `Recruiter ${action === 'verify' ? 'verified' : 'rejected'} successfully.`,
+            user: buildUserPayload(user)
+        });
+    } catch (err) {
+        console.error('Verify company error:', err);
+        return res.status(500).json({ message: 'Failed to verify company.' });
+    }
+};
+
 // Generate JWT
 const generateToken = (id) => {
     return jwt.sign({ id }, getJwtSecret(), {
@@ -574,11 +954,16 @@ const generateToken = (id) => {
 module.exports = {
     buildUserPayload,
     registerUser,
+    registerRecruiter,
     loginUser,
     updateProfile,
     forgotPassword,
     verifyForgotPasswordOtp,
     resetPassword,
     verifyGoogleToken,
-    generateToken
+    verifySignupOtp,
+    resendSignupOtp,
+    generateToken,
+    getMe,
+    verifyCompany
 };

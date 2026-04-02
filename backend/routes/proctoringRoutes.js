@@ -8,12 +8,13 @@ const {
   getSession,
   heartbeat,
 } = require('../controllers/proctoringController');
+const { protect } = require('../middleware/auth');
 
-router.post('/sessions', createSession);
-router.get('/sessions/:sessionId', getSession);
-router.post('/sessions/:sessionId/risk', updateRiskScore);
-router.post('/violations', recordViolation);
-router.post('/risk-events', recordRiskEvent);
-router.post('/heartbeat', heartbeat);
+router.post('/sessions', protect, createSession);
+router.get('/sessions/:sessionId', protect, getSession);
+router.post('/sessions/:sessionId/risk', protect, updateRiskScore);
+router.post('/violations', protect, recordViolation);
+router.post('/risk-events', protect, recordRiskEvent);
+router.post('/heartbeat', protect, heartbeat);
 
 module.exports = router;

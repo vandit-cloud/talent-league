@@ -247,13 +247,16 @@ const handleOAuthCallback = async (req, res) => {
         let user = await User.findOne({ email });
 
         if (!user) {
+            // SECURITY: Always create OAuth users as candidates.
+            // Recruiters must go through /register-recruiter with GST/CIN verification.
             user = await User.create({
                 name,
                 email,
-                role: role || 'candidate',
+                role: 'candidate',
                 avatar,
                 isSocialOnly: true,
-                emailVerified: true
+                emailVerified: true,
+                verificationStatus: 'not_required'
             });
         } else {
             let userChanged = false;
