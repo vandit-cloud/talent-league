@@ -409,21 +409,27 @@ function MeetingRoom({ interview, onLeave }: { interview: InterviewData; onLeave
         audio: true,
       });
       localStreamRef.current = stream;
-      // Attach to video element
-      if (localVideoRef.current) {
-        localVideoRef.current.srcObject = stream;
-        localVideoRef.current.play().catch(() => {});
-      }
+      // Attach to video element — use a small delay to ensure the ref is mounted
+      const attachStream = () => {
+        if (localVideoRef.current) {
+          localVideoRef.current.srcObject = stream;
+          localVideoRef.current.play().catch(() => {});
+        }
+      };
+      attachStream();
+      // Retry once after a short delay in case the ref wasn't ready
+      setTimeout(attachStream, 100);
       setIsCameraOn(true);
       setIsMicOn(true);
       setMediaError('');
       startMicLevelAnalyzer(stream);
-    } catch {
+    } catch (err) {
+      console.error('Camera error:', err);
       setMediaError('Could not access camera or microphone. Please allow permissions and try again.');
       setIsCameraOn(false);
       setIsMicOn(false);
     }
-  }, []);
+  }, [startMicLevelAnalyzer]);
 
   const stopAllStreams = useCallback(() => {
     localStreamRef.current?.getTracks().forEach(t => t.stop());
@@ -472,13 +478,19 @@ function MeetingRoom({ interview, onLeave }: { interview: InterviewData; onLeave
     setTimeout(() => showToast(`${interviewerName} is in the meeting`), 1500);
   };
 
-  // Re-attach stream to video element when lobby/call view changes
+  // Re-attach stream to video element when lobby/call view or layout changes
   useEffect(() => {
-    if (localStreamRef.current && localVideoRef.current) {
-      localVideoRef.current.srcObject = localStreamRef.current;
-      localVideoRef.current.play().catch(() => {});
-    }
-  }, [isLobby]);
+    const attach = () => {
+      if (localStreamRef.current && localVideoRef.current) {
+        localVideoRef.current.srcObject = localStreamRef.current;
+        localVideoRef.current.play().catch(() => {});
+      }
+    };
+    attach();
+    // Retry after a short delay in case DOM re-rendered
+    const timer = setTimeout(attach, 150);
+    return () => clearTimeout(timer);
+  }, [isLobby, layout, activePanel, isScreenSharing]);
 
   const sendChat = () => {
     if (!chatInput.trim()) return;
@@ -513,8 +525,11 @@ function MeetingRoom({ interview, onLeave }: { interview: InterviewData; onLeave
     else { document.exitFullscreen(); setIsFullscreen(false); }
   };
 
-  // Auto-start camera when entering lobby
-  useEffect(() => { startCamera(); }, [startCamera]);
+  // Auto-start camera when entering lobby — small delay to ensure video element is mounted
+  useEffect(() => {
+    const timer = setTimeout(() => startCamera(), 200);
+    return () => clearTimeout(timer);
+  }, [startCamera]);
 
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [chatMessages]);
   useEffect(() => { return () => { stopAllStreams(); if (timerRef.current) clearInterval(timerRef.current); }; }, [stopAllStreams]);
