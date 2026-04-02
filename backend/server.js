@@ -32,8 +32,14 @@ app.use(cors({
             'ionic://localhost'
         ];
 
+        // Add production frontend URL from environment
+        const frontendUrl = process.env.FRONTEND_URL;
+        if (frontendUrl) {
+            allowedOrigins.push(frontendUrl.replace(/\/+$/, ''));
+        }
+
         // Allow localhost origins and configured origins
-        if (origin.includes('localhost') || origin.includes('127.0.0.1') || allowedOrigins.indexOf(origin) !== -1) {
+        if (origin.includes('localhost') || origin.includes('127.0.0.1') || origin.includes('.vercel.app') || allowedOrigins.indexOf(origin) !== -1) {
             callback(null, true);
         } else {
             callback(new Error('Not allowed by CORS'));
