@@ -1,6 +1,6 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LayoutGrid, Users, ClipboardList, UserPlus, LogOut, Briefcase, Settings, Bell, Sparkles, Brain, PlusCircle } from 'lucide-react';
+import { LayoutGrid, Users, ClipboardList, UserPlus, LogOut, Briefcase, Settings, Bell, Sparkles, Brain, PlusCircle, Video } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 
 export function RecruiterLayout() {
@@ -15,6 +15,7 @@ export function RecruiterLayout() {
     { path: '/recruiter/candidates', label: 'Candidates', icon: Users },
     { path: '/recruiter/add-candidate', label: 'Add Candidate', icon: UserPlus },
     { path: '/recruiter/jobs', label: 'Job Management', icon: Briefcase },
+    { path: '/recruiter/interviews', label: 'Interviews', icon: Video },
     { path: '/recruiter/settings', label: 'Settings', icon: Settings }
   ];
 

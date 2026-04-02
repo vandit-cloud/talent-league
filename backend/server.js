@@ -101,6 +101,7 @@ app.use('/api/proctoring', require('./routes/proctoringRoutes'));
 app.use('/api/mcq', require('./routes/mcqRoutes'));
 app.use('/api/jobs', require('./routes/jobRoutes'));
 app.use('/api/assessment-templates', require('./routes/assessmentTemplateRoutes'));
+app.use('/api/interviews', require('./routes/interviewRoutes'));
 
 // Start Server
 app.listen(PORT, () => {
