@@ -118,8 +118,12 @@ export function JobApplicationResumeUpload() {
       const formData = new FormData();
       formData.append('resume', selectedFile);
 
+      const token = localStorage.getItem('token');
       const response = await fetch(getApiUrl('/resume/analyze'), {
         method: 'POST',
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: formData,
       });
 

@@ -158,8 +158,12 @@ export function ResumeUpload() {
 
       // Call backend AI API for resume parsing
       console.log('📤 Sending resume to backend...', file.name);
+      const token = localStorage.getItem('token');
       const response = await fetch(getApiUrl('/resume/analyze'), {
         method: 'POST',
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: formData,
       });
 
