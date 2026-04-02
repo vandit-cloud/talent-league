@@ -13,7 +13,7 @@ const sendViaBrevo = async ({ to, subject, html }) => {
     const brevoApiKey = process.env.BREVO_API_KEY;
     if (!brevoApiKey || !brevoAvailable) return null;
 
-    const senderEmail = process.env.BREVO_SENDER_EMAIL || process.env.EMAIL_USER || 'noreply@talentleague.dev';
+    const senderEmail = process.env.BREVO_SENDER_EMAIL || 'vvdoshi20@gmail.com';
     const client = new BrevoClient({ apiKey: brevoApiKey });
 
     console.log(`[Email] Sending via Brevo to: ${to}, subject: "${subject}"`);
