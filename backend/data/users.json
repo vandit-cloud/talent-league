@@ -60,5 +60,17 @@
     "createdAt": "2026-04-02T07:09:37.135Z",
     "signupOtpToken": "fe30168c8aae6190a518cc223b5e2fcdd523f32c3645c72624bbbbfc5e1c913b",
     "signupOtpExpires": "2026-04-02T07:19:37.135Z"
+  },
+  {
+    "name": "Rudra Patel",
+    "email": "rudra@test.com",
+    "password": "$2b$10$Is4KgJz8sEgkx.xyXD36vuYCRG3pynuW7.g7JBLTLY0o4EBwsYEPS",
+    "role": "candidate",
+    "emailVerified": true,
+    "verificationStatus": "not_required",
+    "_id": "offline_1775123505049",
+    "createdAt": "2026-04-02T09:51:45.049Z",
+    "signupOtpToken": "2423d05479cc1fe8d165f22f657ae5c6e65511f4796631c3e0cd32ec27c14d47",
+    "signupOtpExpires": "2026-04-02T10:01:45.050Z"
   }
 ]
