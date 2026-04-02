@@ -11,6 +11,7 @@ import { RecruiterLayout } from './components/RecruiterLayout';
 const LandingPage = lazy(() => import('./pages/LandingPage').then(m => ({ default: m.LandingPage })));
 const RecruiterSignup = lazy(() => import('./pages/RecruiterSignup').then(m => ({ default: m.RecruiterSignup })));
 const RecruiterVerificationPending = lazy(() => import('./pages/RecruiterVerificationPending').then(m => ({ default: m.RecruiterVerificationPending })));
+const CompanyApprovals = lazy(() => import('./pages/CompanyApprovals').then(m => ({ default: m.CompanyApprovals })));
 
 const Dashboard = lazy(() => import('./pages/Dashboard').then(m => ({ default: m.Dashboard })));
 const ResumeUpload = lazy(() => import('./pages/ResumeUpload').then(m => ({ default: m.ResumeUpload })));
@@ -143,6 +144,7 @@ function AppRoutes() {
             <Route path="exam-results" element={<ExamResults />} />
             <Route path="jobs" element={<Jobs />} />
             <Route path="interview" element={<Interview />} />
+            <Route path="company-approvals" element={<CompanyApprovals />} />
             <Route path="league" element={<League />} />
             <Route path="salary" element={<Salary />} />
             <Route path="profile" element={<Profile />} />

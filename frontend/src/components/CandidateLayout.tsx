@@ -7,6 +7,7 @@ import {
   BarChart3,
   Briefcase,
   Video,
+  Building2,
   User,
   Bell,
   LogOut,
@@ -29,6 +30,7 @@ export function CandidateLayout() {
     { path: '/exam-results', label: 'Results', icon: BarChart3 },
     { path: '/jobs', label: 'Jobs', icon: Briefcase },
     { path: '/interview', label: 'Interview', icon: Video },
+    { path: '/company-approvals', label: 'Approvals', icon: Building2 },
   ];
 
   const handleLogout = () => {
