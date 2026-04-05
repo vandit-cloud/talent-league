@@ -31,6 +31,12 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const safeJson = async (response: Response) => {
+  const text = await response.text();
+  if (!text) return {};
+  try { return JSON.parse(text); } catch { return {}; }
+};
+
 const normalizeAuthUser = (data: any): User => ({
   ...data,
   id: data._id || data.id,
@@ -114,7 +120,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return;
         }
 
-        const data = await response.json();
+        const data = await safeJson(response);
         const freshUser = normalizeAuthUser(data);
 
         // Update local state with server-validated data
@@ -141,7 +147,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       body: JSON.stringify({ email, password, role }),
     });
 
-    const data = await response.json();
+    const data = await safeJson(response);
 
     if (!response.ok) {
       console.error('Login failed:', data.message);
@@ -162,7 +168,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       body: JSON.stringify({ name, email, password }),
     });
 
-    const data = await response.json();
+    const data = await safeJson(response);
 
     if (!response.ok) {
       throw new Error(data.message || 'Signup failed');
@@ -192,7 +198,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       body: JSON.stringify(formData),
     });
 
-    const data = await response.json();
+    const data = await safeJson(response);
 
     if (!response.ok) {
       throw new Error(data.message || 'Recruiter signup failed');
@@ -219,7 +225,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       body: JSON.stringify(profile),
     });
 
-    const data = await response.json();
+    const data = await safeJson(response);
 
     if (!response.ok) {
       throw new Error(data.message || 'Failed to update profile');
