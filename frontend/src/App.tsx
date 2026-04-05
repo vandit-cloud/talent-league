@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ToastProvider } from './components/Toast';
 import { CandidateLayout } from './components/CandidateLayout';
@@ -189,6 +190,7 @@ export function App() {
       <AuthProvider>
         <ToastProvider>
           <AppRoutes />
+          <SpeedInsights />
         </ToastProvider>
       </AuthProvider>
     </Router>
