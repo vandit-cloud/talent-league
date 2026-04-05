@@ -14,10 +14,6 @@ export const getBackendBaseUrl = () => {
 };
 
 export const getApiBaseUrl = () => {
-  if (import.meta.env.DEV && typeof window !== 'undefined') {
-    return '/api';
-  }
-
   return `${getBackendBaseUrl()}/api`;
 };
 
